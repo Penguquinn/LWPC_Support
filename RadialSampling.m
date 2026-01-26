@@ -1,0 +1,71 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%            The Givens             %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+angle_step = 0.5;
+dist_max = 11000;
+angle_min = 200;
+angle_max = 270;
+freak = 24e3;
+
+cleanup();
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%    Make a list of files to run    %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tagsm = angle_min:angle_step:angle_max;
+
+for ii = 1:length(tagsm)
+    tagsc{ii} = strrep(sprintf('%g', tagsm(ii)), '.', '_');
+    filenames{ii} = ['CircProp',tagsc{ii}];
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%        build input files          %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+xmtr_loc = [44.633,-67.283];
+
+[lat_out, lon_out] = points_at_distance( ...
+    xmtr_loc(1), xmtr_loc(2), dist_max, angle_min, angle_max, angle_step);
+
+parfor ii = 1:length(filenames)
+    fid = fopen(['\\wsl.localhost\Ubuntu-24.04\home\quinn\work\LWPC\LWPCv21\input\',filenames{ii},'.inp'],'w+');
+    fprintf(fid,['FILE-MDS ../LWPCv21/output/',newline]);
+    fprintf(fid,['FILE-LWF ../LWPCv21/output/',newline]);
+    fprintf(fid,['CASE-ID  Prop of wave at %d kHz to %d %d ',newline],freak,lon_out(ii),lat_out(ii));
+    fprintf(fid,['TX    %s',newline],filenames{ii});
+    fprintf(fid,['TX-DATA    NAA',newline]);
+    fprintf(fid,['IONOSPHERE   LWPM DAY',newline]);
+    fprintf(fid,['RANGE-MAX    %d',newline], dist_max);
+    fprintf(fid,['RECEIVERS   %f   %f',newline],lat_out(ii),lon_out(ii));
+    fprintf(fid,['LWF-VS-DIST 20000',newline]);
+    fprintf(fid,['MC-OPTIONS  FULL-WAVE 0 TRUE',newline]);
+    fprintf(fid,['LWFIELDS',newline]);
+    fprintf(fid,['PRINT-MDS    0',newline]);
+    fprintf(fid,['PRINT-WF    2',newline]);
+    fprintf(fid,['PRINT-LWF    2',newline]);
+    fprintf(fid,['PRINT-SWG    2',newline]);
+    fprintf(fid,['PRINT-MC    1',newline]);
+    fprintf(fid,['START',newline]);
+    fprintf(fid,['QUIT',newline]);
+    fclose(fid);
+end
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%    Run list of lwpc commands      %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+parfor ii = 1:length(filenames)
+[status, cmdout] = RunLWPC(filenames{ii});
+end
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%    Read Outputs into .mat files   %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

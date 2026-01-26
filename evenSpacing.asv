@@ -1,0 +1,20 @@
+function avgReplicability = evenSpacing(mag,numSamples)
+%EVENSPACING Summary of this function goes here
+%   Detailed explanation goes here
+arguments (Input)
+    mag
+    numSamples
+end
+
+arguments (Output)
+    avgReplicability
+
+end
+
+trueSamp = length(mag);
+samp = linspace(1,trueSamp,numSamples);
+samp = round(samp);
+
+
+
+end
