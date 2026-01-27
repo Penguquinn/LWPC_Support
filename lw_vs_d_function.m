@@ -1,7 +1,7 @@
-%This script will copy the utility of the Fortran LW_VS_D subroutine
+%This script will copy the utility of the Fortran LW_VS_D subroutinedst
 
 
-function [s0,s1,s2,s3]=lw_vs_d_function(output_path,log_file,f,rho_full)
+function [s0,s1,s2,s3]=lw_vs_d_function(output_path,log_file,f,rho_full,mat_name)
 % clearvars
 
 % f = 24.0; txname = 'NAA';
@@ -20,7 +20,7 @@ a = 6370; %radius of earth in km
 dtr = pi/180;   %change degrees to radians in eigenangle formulas
 % rtd = 180/pi;
 
-fclose all;
+%fclose all;
 % output_path = 'C:\hcburch\Research\Dissertation\Prelminary_work\outputs\';
 % log_file = 'lwpm-python-10602-S9M26X.log';    %NAA
 % log_file = 'lwpm-python-40514-Z2MWJ4.log';    %NAA
@@ -32,8 +32,8 @@ fclose all;
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
     = read_output_lwpv3_T_fofr(output_path, log_file);
-
-save('output_file.mat','rho', 'sigma', 'epsr', 'eigen', 'eigens',...
+%['./outputs/',mat_name]
+save(['./outputs/',mat_name],'rho', 'sigma', 'epsr', 'eigen', 'eigens',...
                 'ht', 'Ex_mag', 'Ex_ang', 'Ey_mag', 'Ey_ang', 'Ez_mag', 'Ez_ang', ...
                 'Hx_mag', 'Hx_ang', 'Hy_mag', 'Hy_ang', 'Hz_mag', 'Hz_ang', 'fofr',...
                 'T1', 'T2', 'T3', 'T4', 'Amk','k','f','a')
@@ -44,7 +44,7 @@ nrpts = 500;
 
 for rho_ind = 1:length(rho_full)
     for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
-        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc);
+        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc,mat_name);
         aa(rho_ind,nc) = amp;
         pp(rho_ind,nc) = phs;
     end

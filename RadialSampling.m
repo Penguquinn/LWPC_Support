@@ -3,10 +3,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 angle_step = 0.5;
-dist_max = 11000;
-angle_min = 200;
-angle_max = 270;
+dist_max = 4000;
+angle_min = 210;
+angle_max = 240;
 freak = 24e3;
+output_path = [filepathing_wsl(),'input\'];
 
 cleanup();
 
@@ -30,8 +31,10 @@ xmtr_loc = [44.633,-67.283];
 [lat_out, lon_out] = points_at_distance( ...
     xmtr_loc(1), xmtr_loc(2), dist_max, angle_min, angle_max, angle_step);
 
+geoplot([xmtr_loc(1),lat_out,xmtr_loc(1)],[xmtr_loc(2),lon_out,xmtr_loc(2)])
+
 parfor ii = 1:length(filenames)
-    fid = fopen(['\\wsl.localhost\Ubuntu-24.04\home\quinn\work\LWPC\LWPCv21\input\',filenames{ii},'.inp'],'w+');
+    fid = fopen([filepathing_wsl(),'input\',filenames{ii},'.inp'],'w+');
     fprintf(fid,['FILE-MDS ../LWPCv21/output/',newline]);
     fprintf(fid,['FILE-LWF ../LWPCv21/output/',newline]);
     fprintf(fid,['CASE-ID  Prop of wave at %d kHz to %d %d ',newline],freak,lon_out(ii),lat_out(ii));
@@ -69,3 +72,39 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for ii = 1:length(tagsm)
+    [s0{ii},s1{ii},s2{ii},s3{ii}] = ...
+        lw_vs_d_function(output_path,[filenames{ii},'.log'],freak,dist_max,[filenames{ii},'.mat']);
+end
+% 
+% choose = 1;
+% figure; plot(dist_max,s1(:,choose)./s0)
+% hold on; plot(dist_max,s2(:,choose)./s0)
+% hold on; plot(dist_max,s3(:,choose)./s0)
+% yline(0)
+% title('Stokes parameters normalized by S_0')
+% xlabel('Distance from transmitter (km)')
+% ylabel('Normalized magnitude')
+% legend('S_1 (Q)','S_2 (U)','S_3 (V)')
+% 
+% figure; plot(dist_max,10*log10(abs(s0(:,choose))))
+% hold on; plot(dist_max,10*log10(abs(s1(:,choose))))
+% hold on; plot(dist_max,10*log10(abs(s2(:,choose))))
+% hold on; plot(dist_max,10*log10(abs(s3(:,choose))))
+% xline(532); xline(1388); xline(2084);
+% title('Stokes parameters, log scale')
+% xlabel('Distance from transmitter (km)')
+% ylabel('Amplitude (dB)')
+% legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)')
+% xlim([0 2200])
+% 
+% 
+% figure; plot(dist_max,20*log10(abs(s1(:,choose)./s0)))
+% hold on; plot(dist_max,20*log10(abs(s2(:,choose)./s0)))
+% hold on; plot(dist_max,20*log10(abs(s3(:,choose)./s0)))
+% xline(532); xline(1388); xline(2084);
+% title('Stokes parameters normalized by S_0, log scale')
+% xlabel('Distance from transmitter (km)')
+% ylabel('Normalized amplitude (dB)')
+% legend('S_1 (Q)','S_2 (U)','S_3 (V)')
+% xlim([0 2200])

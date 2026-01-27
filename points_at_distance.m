@@ -17,7 +17,7 @@ function [lat_out, lon_out, bearings] = points_at_distance( ...
 %   bearings     - bearings used (degrees)
     
     dist_deg = km2deg(dist_km);
-    circ = [dist_deg*sind(angle_min:angle_step:angle_max)./2; dist_deg*cosd(angle_min:angle_step:angle_max)];
+    circ = [dist_deg*cosd((angle_min:angle_step:angle_max))./2; dist_deg*sind((angle_min:angle_step:angle_max))];
     lat_out = lat0 + circ(1,:);
     lon_out = lon0 + circ(2,:);
 

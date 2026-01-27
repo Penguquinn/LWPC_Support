@@ -1,6 +1,6 @@
 %This script will copy the utility of the Fortran LW_SUM_MODES subroutine
 
-function [amp,phs] = lw_sum_modes(power,dst,nc)
+function [amp,phs] = lw_sum_modes(power,dist_var,nc,load_name)
 % clearvars
 % close all
 % fclose all;
@@ -16,7 +16,7 @@ function [amp,phs] = lw_sum_modes(power,dst,nc)
 dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
-load('output_file.mat')
+load(['.\outputs\',load_name]);
 
 switch nc
     case 1
@@ -39,7 +39,7 @@ switch nc
         fieldang = Hx_ang;
 end
 
-
+Amk{1} = eye(length(eigens{1}));
 
 mik = complex(0,-k);
 aconst = -8686*k;
@@ -53,7 +53,7 @@ xone = 0;
 if length(rho)>1
     xtwo = rho(2);
 else
-    xtwo = dst;
+    xtwo = dist_var;
 end
 t = [1 0 0]; %antenna orientation factors; 1-0-0 is a vertical dipole
 nsgmnt = 1; %starting in the first slab
@@ -80,7 +80,7 @@ for m2 = 1:nreigen2
     soln_b(1,m2) = tb.*fieldmag(1,1,m2).*exp(sqrt(-1).*fieldang(1,1,m2));
 end
 
-while dst>xtwo     %passed the end of the slab
+while dist_var>xtwo     %passed the end of the slab
     mikx = mik*(xtwo-xone);
     nreigen1 = nreigen2;
     for m1 = 1:nreigen1
@@ -118,8 +118,8 @@ while dst>xtwo     %passed the end of the slab
     end
 end
 
-mikx = mik*(dst-xone);
-factor = const/sqrt(abs(sin(dst/a)));
+mikx = mik*(dist_var-xone);
+factor = const/sqrt(abs(sin(dist_var/a)));
 
 tb = 0;
 for m2 = 1:nreigen2
@@ -140,7 +140,7 @@ end
 phs1 = phs2;
 phs = phs2+cycle;
 
-if dst==0
+if dist_var==0
     amp = 20*log10(const*80);
     phs = 0;
 end
