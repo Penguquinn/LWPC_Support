@@ -73,10 +73,11 @@ end
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for ii = 1:length(tagsm)
-    [s0{ii},s1{ii},s2{ii},s3{ii}] = ...
-        lw_vs_d_function(output_path,[filenames{ii},'.log'],freak,dist_max,[filenames{ii},'.mat']);
+    [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}] = ...
+        lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
 end
-% 
+
+
 % choose = 1;
 % figure; plot(dist_max,s1(:,choose)./s0)
 % hold on; plot(dist_max,s2(:,choose)./s0)

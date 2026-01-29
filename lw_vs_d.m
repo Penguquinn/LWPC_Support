@@ -20,7 +20,7 @@ rtd = 180/pi;
 
 fclose all;
 output_path = [filepathing_wsl(),'input\'];
-log_file = 'CircProp200_5.log';
+log_file = 'CircProp210.log';
 
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
@@ -29,7 +29,7 @@ log_file = 'CircProp200_5.log';
 save('output_file.mat','rho', 'sigma', 'epsr', 'eigen', 'eigens',...
                 'ht', 'Ex_mag', 'Ex_ang', 'Ey_mag', 'Ey_ang', 'Ez_mag', 'Ez_ang', ...
                 'Hx_mag', 'Hx_ang', 'Hy_mag', 'Hy_ang', 'Hz_mag', 'Hz_ang', 'fofr',...
-                'T1', 'T2', 'T3', 'T4', 'Amk','k','f','a')
+                'T1', 'T2', 'T3', 'T4', 'Amk','k','f','a');
 
 
 nrpts = 1000;
@@ -38,7 +38,7 @@ rho_full = 0:rho_max/nrpts:rho_max;
 
 for rho_ind = 1:length(rho_full)
     for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
-        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc,'output_file.mat');
+        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc);
         aa(rho_ind,nc) = amp;
         pp(rho_ind,nc) = phs;
     end

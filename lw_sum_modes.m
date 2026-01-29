@@ -1,6 +1,6 @@
 %This script will copy the utility of the Fortran LW_SUM_MODES subroutine
 
-function [amp,phs] = lw_sum_modes(power,dist_var,nc,load_name)
+function [amp,phs] = lw_sum_modes(power,dist_var,nc)
 % clearvars
 % close all
 % fclose all;
@@ -16,7 +16,7 @@ function [amp,phs] = lw_sum_modes(power,dist_var,nc,load_name)
 dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
-load(['.\outputs\',load_name]);
+load('output_file.mat');
 
 switch nc
     case 1
