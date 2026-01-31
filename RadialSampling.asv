@@ -3,9 +3,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 angle_step = 0.5;
-dist_max = 11000;
-angle_min = 200;
-angle_max = 250;
+dist_max = 4000;
+angle_min = 210;
+angle_max = 240;
 freak = 24e3;
 output_path = [filepathing_wsl(),'input\'];
 
@@ -73,38 +73,102 @@ end
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for ii = 1:length(tagsm)
-    [s0(ii,:),s1(ii,:),s2(ii,:),s3(ii,:)] = ...
-        lw_vs_d_function(output_path,[filenames{ii},'.log'],freak,dist_max,[filenames{ii},'.mat']);
+    [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}] = ...
+        lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
 end
-% 
-% choose = 1;
-% figure; plot(dist_max,s1(:,choose)./s0)
-% hold on; plot(dist_max,s2(:,choose)./s0)
-% hold on; plot(dist_max,s3(:,choose)./s0)
+
+
+% for ii = 1:length(s0_c{ii})
+% subplot(3,1,1); plot(dist_max,s1_c{ii}./s0_c{ii})
+% hold on; plot(dist_max,s2_c{ii}./s0_c{ii})
+% hold on; plot(dist_max,s3_c{ii}./s0_c{ii})
 % yline(0)
 % title('Stokes parameters normalized by S_0')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Normalized magnitude')
 % legend('S_1 (Q)','S_2 (U)','S_3 (V)')
 % 
-% figure; plot(dist_max,10*log10(abs(s0(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s1(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s2(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s3(:,choose))))
+% subplot(3,1,2); plot(dist_max,10*log10(abs(s0_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s1_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s2_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s3_c{ii})))
 % xline(532); xline(1388); xline(2084);
 % title('Stokes parameters, log scale')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Amplitude (dB)')
 % legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)')
-% xlim([0 2200])
+% xlim([0 4000])
 % 
 % 
-% figure; plot(dist_max,20*log10(abs(s1(:,choose)./s0)))
-% hold on; plot(dist_max,20*log10(abs(s2(:,choose)./s0)))
-% hold on; plot(dist_max,20*log10(abs(s3(:,choose)./s0)))
+% subplot(3,1,3); plot(dist_max,20*log10(abs(s1_c{ii}./s0_c{ii})))
+% hold on; plot(dist_max,20*log10(abs(s2_c{ii}./s0_c{ii})))
+% hold on; plot(dist_max,20*log10(abs(s3_c{ii}./s0_c{ii})))
 % xline(532); xline(1388); xline(2084);
 % title('Stokes parameters normalized by S_0, log scale')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Normalized amplitude (dB)')
 % legend('S_1 (Q)','S_2 (U)','S_3 (V)')
-% xlim([0 2200])
+% xlim([0 4000])
+% end
+
+gifFile = 'stokes_evolution.gif';
+delayTime = 0.5;   % seconds between frames
+dist_vec = (1:length(filenames))
+figure('Color','w');
+
+for ii = 1:length(s0_c)
+
+    clf;  % clear figure for next frame
+
+    % -------- Subplot 1 --------
+    subplot(3,1,1)
+    plot(dist_max, s1_c{ii}./s0_c{ii}); hold on
+    plot(dist_max, s2_c{ii}./s0_c{ii});
+    plot(dist_max, s3_c{ii}./s0_c{ii});
+    yline(0)
+    title('Stokes parameters normalized by S_0')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Normalized magnitude')
+    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+
+    % -------- Subplot 2 --------
+    subplot(3,1,2)
+    plot(dist_max,10*log10(abs(s0_c{ii}))); hold on
+    plot(dist_max,10*log10(abs(s1_c{ii})))
+    plot(dist_max,10*log10(abs(s2_c{ii})))
+    plot(dist_max,10*log10(abs(s3_c{ii})))
+    xline(532); xline(1388); xline(2084);
+    title('Stokes parameters, log scale')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Amplitude (dB)')
+    legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+    xlim([0 4000])
+
+    % -------- Subplot 3 --------
+    subplot(3,1,3)
+    plot(dist_max,20*log10(abs(s1_c{ii}./s0_c{ii}))); hold on
+    plot(dist_max,20*log10(abs(s2_c{ii}./s0_c{ii})))
+    plot(dist_max,20*log10(abs(s3_c{ii}./s0_c{ii})))
+    xline(532); xline(1388); xline(2084);
+    title('Stokes parameters normalized by S_0, log scale')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Normalized amplitude (dB)')
+    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+    xlim([0 4000])
+
+    drawnow
+
+    % -------- Capture frame --------
+    frame = getframe(gcf);
+    im = frame2im(frame);
+    [imind, cm] = rgb2ind(im, 256);
+
+    % -------- Write to GIF --------
+    if ii == 1
+        imwrite(imind, cm, gifFile, 'gif', ...
+                'Loopcount', inf, 'DelayTime', delayTime);
+    else
+        imwrite(imind, cm, gifFile, 'gif', ...
+                'WriteMode', 'append', 'DelayTime', delayTime);
+    end
+end

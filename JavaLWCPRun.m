@@ -13,9 +13,12 @@ pr.destroy();
 %% use java runtime to execute wsl commands in powershell
 
 tic
-command = 'wsl -e bash -c "cd /home/qdh0004/git_repos/LWPC/build/ && ./lwpc.bin ../LWPCv21/bearings';
+cmd = sprintf([ ...
+    'wsl.exe bash -lc "cd ~/work/v3.0.1 && ' ...
+    'export LWPC_DAT_LOC="/home/qdh0004/work/v3.0.1/data/" && ' ...
+    './lwpm ./%s"' ], file);
 
-pr = rt.exec(command);
+pr = rt.exec(cmd);
 
 stderr = java.io.BufferedReader(java.io.InputStreamReader(pr.getErrorStream()));
 line = stderr.readLine();

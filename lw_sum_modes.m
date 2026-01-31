@@ -1,6 +1,6 @@
 %This script will copy the utility of the Fortran LW_SUM_MODES subroutine
 
-function [amp,phs] = lw_sum_modes(power,dist_var,nc)
+function [amp,phs] = lw_sum_modes(power,dist_var,nc,data,eigens,Amk)
 % clearvars
 % close all
 % fclose all;
@@ -16,7 +16,10 @@ function [amp,phs] = lw_sum_modes(power,dist_var,nc)
 dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
-load('output_file.mat');
+[rho, sigma, epsr, eigen, ht, ...
+          Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
+          Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, ...
+          fofr, T1, T2, T3, T4, k, f, a] = unpackData(data);
 
 switch nc
     case 1
@@ -39,7 +42,7 @@ switch nc
         fieldang = Hx_ang;
 end
 
-Amk{1} = eye(length(eigens{1}));
+%Amk{1} = eye(length(eigens{1}));
 
 mik = complex(0,-k);
 aconst = -8686*k;
@@ -144,7 +147,47 @@ if dist_var==0
     amp = 20*log10(const*80);
     phs = 0;
 end
+end
 
+function [rho, sigma, epsr, eigen, ht, ...
+          Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
+          Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, ...
+          fofr, T1, T2, T3, T4, k, f, a] = unpackData(data)
+%UNPACKDATA Unpack all fields from a data struct into individual variables
+
+rho    = data.rho;
+sigma = data.sigma;
+epsr  = data.epsr;
+eigen = data.eigen;
+
+ht = data.ht;
+
+Ex_mag = data.Ex_mag;
+Ex_ang = data.Ex_ang;
+Ey_mag = data.Ey_mag;
+Ey_ang = data.Ey_ang;
+Ez_mag = data.Ez_mag;
+Ez_ang = data.Ez_ang;
+
+Hx_mag = data.Hx_mag;
+Hx_ang = data.Hx_ang;
+Hy_mag = data.Hy_mag;
+Hy_ang = data.Hy_ang;
+Hz_mag = data.Hz_mag;
+Hz_ang = data.Hz_ang;
+
+fofr = data.fofr;
+
+T1 = data.T1;
+T2 = data.T2;
+T3 = data.T3;
+T4 = data.T4;
+
+k   = data.k;
+f   = data.f;
+a   = data.a;
+
+end
 
 
 

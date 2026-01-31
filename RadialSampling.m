@@ -2,12 +2,14 @@
 %%%%            The Givens             %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+close all;
+
 angle_step = 0.5;
 dist_max = 4000;
 angle_min = 210;
 angle_max = 240;
 freak = 24e3;
-output_path = [filepathing_wsl(),'input\'];
+output_path = filepathing_wsl();
 
 cleanup();
 
@@ -34,12 +36,12 @@ xmtr_loc = [44.633,-67.283];
 geoplot([xmtr_loc(1),lat_out,xmtr_loc(1)],[xmtr_loc(2),lon_out,xmtr_loc(2)])
 
 parfor ii = 1:length(filenames)
-    fid = fopen([filepathing_wsl(),'input\',filenames{ii},'.inp'],'w+');
-    fprintf(fid,['FILE-MDS ../LWPCv21/output/',newline]);
-    fprintf(fid,['FILE-LWF ../LWPCv21/output/',newline]);
+    fid = fopen([filepathing_wsl(),filenames{ii},'.inp'],'w+');
+%    fprintf(fid,['FILE-MDS ./mds/',newline]);
+%    fprintf(fid,['FILE-LWF ./lwf/',newline]);
     fprintf(fid,['CASE-ID  Prop of wave at %d kHz to %d %d ',newline],freak,lon_out(ii),lat_out(ii));
     fprintf(fid,['TX    %s',newline],filenames{ii});
-    fprintf(fid,['TX-DATA    NAA',newline]);
+    fprintf(fid,['TX-DATA    NAA240',newline]);
     fprintf(fid,['IONOSPHERE   LWPM DAY',newline]);
     fprintf(fid,['RANGE-MAX    %d',newline], dist_max);
     fprintf(fid,['RECEIVERS   %f   %f',newline],lat_out(ii),lon_out(ii));
@@ -78,34 +80,97 @@ for ii = 1:length(tagsm)
 end
 
 
-% choose = 1;
-% figure; plot(dist_max,s1(:,choose)./s0)
-% hold on; plot(dist_max,s2(:,choose)./s0)
-% hold on; plot(dist_max,s3(:,choose)./s0)
+% for ii = 1:length(s0_c{ii})
+% subplot(3,1,1); plot(dist_max,s1_c{ii}./s0_c{ii})
+% hold on; plot(dist_max,s2_c{ii}./s0_c{ii})
+% hold on; plot(dist_max,s3_c{ii}./s0_c{ii})
 % yline(0)
 % title('Stokes parameters normalized by S_0')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Normalized magnitude')
 % legend('S_1 (Q)','S_2 (U)','S_3 (V)')
 % 
-% figure; plot(dist_max,10*log10(abs(s0(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s1(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s2(:,choose))))
-% hold on; plot(dist_max,10*log10(abs(s3(:,choose))))
+% subplot(3,1,2); plot(dist_max,10*log10(abs(s0_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s1_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s2_c{ii})))
+% hold on; plot(dist_max,10*log10(abs(s3_c{ii})))
 % xline(532); xline(1388); xline(2084);
 % title('Stokes parameters, log scale')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Amplitude (dB)')
 % legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)')
-% xlim([0 2200])
+% xlim([0 4000])
 % 
 % 
-% figure; plot(dist_max,20*log10(abs(s1(:,choose)./s0)))
-% hold on; plot(dist_max,20*log10(abs(s2(:,choose)./s0)))
-% hold on; plot(dist_max,20*log10(abs(s3(:,choose)./s0)))
+% subplot(3,1,3); plot(dist_max,20*log10(abs(s1_c{ii}./s0_c{ii})))
+% hold on; plot(dist_max,20*log10(abs(s2_c{ii}./s0_c{ii})))
+% hold on; plot(dist_max,20*log10(abs(s3_c{ii}./s0_c{ii})))
 % xline(532); xline(1388); xline(2084);
 % title('Stokes parameters normalized by S_0, log scale')
 % xlabel('Distance from transmitter (km)')
 % ylabel('Normalized amplitude (dB)')
 % legend('S_1 (Q)','S_2 (U)','S_3 (V)')
-% xlim([0 2200])
+% xlim([0 4000])
+% end
+
+gifFile = 'stokes_evolution.gif';
+delayTime = 0.5;   % seconds between frames
+dist_vec = (dist_max/length(s0_c{1}))*(1:length(s0_c{1}));
+figure('Color','w');
+
+for ii = 1:length(s0_c)
+
+    clf;  % clear figure for next frame
+
+    % -------- Subplot 1 --------
+    subplot(3,1,1)
+    plot(dist_vec, s1_c{ii}./s0_c{ii}); hold on
+    plot(dist_vec, s2_c{ii}./s0_c{ii});
+    plot(dist_vec, s3_c{ii}./s0_c{ii});
+    yline(0)
+    title('Stokes parameters normalized by S_0')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Normalized magnitude')
+    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+
+    % -------- Subplot 2 --------
+    subplot(3,1,2)
+    plot(dist_vec,10*log10(abs(s0_c{ii}))); hold on
+    plot(dist_vec,10*log10(abs(s1_c{ii})))
+    plot(dist_vec,10*log10(abs(s2_c{ii})))
+    plot(dist_vec,10*log10(abs(s3_c{ii})))
+    xline(532); xline(1388); xline(2084);
+    title('Stokes parameters, log scale')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Amplitude (dB)')
+    legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+    xlim([0 4000])
+
+    % -------- Subplot 3 --------
+    subplot(3,1,3)
+    plot(dist_vec,20*log10(abs(s1_c{ii}./s0_c{ii}))); hold on
+    plot(dist_vec,20*log10(abs(s2_c{ii}./s0_c{ii})))
+    plot(dist_vec,20*log10(abs(s3_c{ii}./s0_c{ii})))
+    xline(532); xline(1388); xline(2084);
+    title('Stokes parameters normalized by S_0, log scale')
+    xlabel('Distance from transmitter (km)')
+    ylabel('Normalized amplitude (dB)')
+    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','best')
+    xlim([0 4000])
+
+    drawnow
+
+    % -------- Capture frame --------
+    frame = getframe(gcf);
+    im = frame2im(frame);
+    [imind, cm] = rgb2ind(im, 256);
+
+    % -------- Write to GIF --------
+    if ii == 1
+        imwrite(imind, cm, gifFile, 'gif', ...
+                'Loopcount', inf, 'DelayTime', delayTime);
+    else
+        imwrite(imind, cm, gifFile, 'gif', ...
+                'WriteMode', 'append', 'DelayTime', delayTime);
+    end
+end
