@@ -11,7 +11,7 @@ end
 
     name = string(java.net.InetAddress.getLocalHost().getHostName());
     if name == "Penguin"
-        pathToData = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\LWPC\LWPCv21\';
+        pathToData = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\';
     elseif name == "elec32"
         %pathToData = '\\wsl.localhost\Ubuntu\home\qdh0004\work\LWPC\LWPCv21\';
         pathToData = '\\wsl.localhost\Ubuntu\home\qdh0004\work\v3.0.1\';

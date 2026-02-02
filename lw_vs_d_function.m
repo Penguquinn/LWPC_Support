@@ -1,7 +1,7 @@
 %This script will copy the utility of the Fortran LW_VS_D subroutinedst
 
 
-function [s0,s1,s2,s3]=lw_vs_d_function(output_path,log_file,f,rho_full)
+function [s0,s1,s2,s3,hx,hy]=lw_vs_d_function(output_path,log_file,f,rho_full)
 % f = 25.2; txname = 'NLM'; %transmitter frequency in kHz
 power = 1;
 pi = 3.1415926535897932385;

@@ -1,6 +1,6 @@
-clearvars
+function filenames = lwpv3_profile_maker_chapman()
 
-save_path = 'C:\hcburch\Research\Dissertation\Prelminary_work\profiles\';
+save_path = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\profile\';
 h = 50:5:100;
 
 % h_0 = 90:150;
@@ -20,7 +20,7 @@ for nn=1:length(logno)
         for ss=1:length(H)
             h = 50:5:100;
             basename = sprintf('%04.fn%03.fs%03.f',h_0(hh)*10,logno(nn)*10,H(ss)*10);
-        
+            filenames{nn,hh,ss} = basename;
             N_0 = exp(logno(nn));
             z = (h-h_0(hh))./H(ss);
             N = N_0.*exp(0.5.*(1-z-exp(-z)));
@@ -48,4 +48,5 @@ for nn=1:length(logno)
         
         end
     end
+end
 end

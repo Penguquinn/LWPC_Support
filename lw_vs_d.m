@@ -19,8 +19,8 @@ dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
 fclose all;
-output_path = '\\wsl.localhost\Ubuntu\home\qdh0004\work\v3.0.1\';
-log_file = 'CircProp210.log';
+output_path = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\';
+log_file = '0900n080s060.log';
 
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
