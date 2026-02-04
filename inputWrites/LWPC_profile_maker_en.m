@@ -7,8 +7,8 @@ save_path = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\profile\';
 % hprime = 70:2:90;
 % beta = 0.4:0.02:0.6;
 
-hprime = 75:.1:85;
-beta = .5;
+hprime = 70:.1:81;
+beta = .6;
 
 % hprime = 74; 
 % beta = 0.50; 

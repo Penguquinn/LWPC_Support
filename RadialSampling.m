@@ -78,16 +78,25 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for ii = 1:length(tagsm)
+parfor ii = 1:length(tagsm)
+    try
     [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}, hx{ii},hy{ii}] = ...
         lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
+    catch
+        s0_c{ii} = NaN(1001,1);
+        s1_c{ii} = NaN(1001,1);
+        s2_c{ii} = NaN(1001,1);
+        s3_c{ii} = NaN(1001,1);
+        hx{ii} = NaN(1001,1);
+        hy{ii} = NaN(1001,1);
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%              Plotting             %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-gifFile = 'stokes_evolution_750b470.gif';
+gifFile = 'stokes_evolution.gif';
 delayTime = 0.1;   % seconds between frames
 dist_vec = (dist_max/length(s0_c{1}))*(1:length(s0_c{1}));
 fg = figure('Color','w');

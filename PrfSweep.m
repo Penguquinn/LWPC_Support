@@ -21,38 +21,20 @@ cleanup(0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tagsm = angle_min:angle_step:angle_max;
 filenames = LWPC_profile_maker_en();
+paths = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1';
 
+for ii=1:numel(filenames)
+TXdata{1,ii} = 'NAA240';
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%        build input files          %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %xmtr_loc = [44.633,-67.283];
 xmtr_loc = [46.366   -98.336];
-
 rxvr_loc = [32.466224, -85.470938];
 
-parfor ii = 1:numel(filenames)
-    fid = fopen([filepathing_wsl(),filenames{ii},'.inp'],'w+');
-%    fprintf(fid,['FILE-MDS ./mds/',newline]);
-%    fprintf(fid,['FILE-LWF ./lwf/',newline]);
-    fprintf(fid,['CASE-ID  Prop of wave at %d kHz to %d %d ',newline],freak,rxvr_loc(1),rxvr_loc(2));
-    fprintf(fid,['TX    %s',newline],filenames{ii});
-    fprintf(fid,['TX-DATA    NAA240',newline]);
-    fprintf(fid,['IONOSPHERE   HOMOGENEOUS TABLE /home/quinn/work/v3.0.1/profile/%s.prf',newline],filenames{ii});
-    fprintf(fid,['RANGE-MAX    %d',newline], dist_max);
-    fprintf(fid,['RECEIVERS   %f   %f',newline],rxvr_loc(1),rxvr_loc(2));
-    fprintf(fid,['LWF-VS-DIST 20000',newline]);
-    fprintf(fid,['MC-OPTIONS  FULL-WAVE 0 TRUE',newline]);
-    fprintf(fid,['LWFIELDS',newline]);
-    fprintf(fid,['PRINT-MDS    0',newline]);
-    fprintf(fid,['PRINT-WF    2',newline]);
-    fprintf(fid,['PRINT-LWF    2',newline]);
-    fprintf(fid,['PRINT-SWG    2',newline]);
-    fprintf(fid,['PRINT-MC    1',newline]);
-    fprintf(fid,['START',newline]);
-    fprintf(fid,['QUIT',newline]);
-    fclose(fid);
-end
+err = InputFileWrite(numel(filenames),filenames,TXdata,rxvr_loc,4000,paths);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,7 +48,7 @@ end
 parfor ii = 1:numel(filenames)
 [status, cmdout] = RunLWPC(filenames{ii});
 end
-cleanup(0)
+cleanup(0);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,8 +71,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%              Plotting             %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-curhp = 75:.1:85;
-gifFile = 'stokes_evolution_prf_sweep.gif';
+curhp = 70:.1:81;
+gifFile = 'stokes_evolution_prf_sweep_beta_60.gif';
 delayTime = 0.1;   % seconds between frames
 dist_vec = (dist_max/length(s0_c{1}))*(1:length(s0_c{1}));
 fg = figure('Color','w');
@@ -147,7 +129,7 @@ for ii = 1:length(s0_c)
     xlim([0 4000])
     ylim([-120 0])
 
-    sgtitle(sprintf("Sweep of h` from 70 to 90 (%f)",curhp(ii)))
+    sgtitle(sprintf("Sweep of h` from %d to %d (%f)",min(curhp),max(curhp),curhp(ii)))
     drawnow
 
     % -------- Capture frame --------
