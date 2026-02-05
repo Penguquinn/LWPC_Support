@@ -21,7 +21,7 @@ cleanup(0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tagsm = angle_min:angle_step:angle_max;
 filenames = LWPC_profile_maker_en();
-paths = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1';
+paths = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\';
 
 for ii=1:numel(filenames)
 TXdata{1,ii} = 'NAA240';
@@ -54,10 +54,50 @@ cleanup(0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for ii = 1:size(filenames,2)
+% for ii = 1:size(filenames,2)
+%     try
+%     [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}, hx{ii},hy{ii}] = ...
+%         lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
+%     catch
+%         s0_c{ii} = NaN(1001,1);
+%         s1_c{ii} = NaN(1001,1);
+%         s2_c{ii} = NaN(1001,1);
+%         s3_c{ii} = NaN(1001,1);
+%         hx{ii} = NaN(1001,1);
+%         hy{ii} = NaN(1001,1);
+%     end
+% end
+for ii=1:numel(filenames)
+[rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
+    Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
+    = read_output_lwpv3_T_fofr(paths, [filenames{ii},'.log']);
+power = 1;
+pi = 3.1415926535897932385;
+f = freak;
+w = 2*pi*f*1000; %rad/s
+c = 299792458; %m/s
+k = w/c; %rad/m
+k = k*1000; %rad/km
+
+a = 6370; %radius of earth in km
+data = struct( ...
+    'rho', rho, ...
+    'sigma', sigma, ...
+    'epsr', epsr, ...
+    'eigen', eigen, ...
+    'ht', ht, ...
+    'Ex_mag', Ex_mag, 'Ex_ang', Ex_ang, ...
+    'Ey_mag', Ey_mag, 'Ey_ang', Ey_ang, ...
+    'Ez_mag', Ez_mag, 'Ez_ang', Ez_ang, ...
+    'Hx_mag', Hx_mag, 'Hx_ang', Hx_ang, ...
+    'Hy_mag', Hy_mag, 'Hy_ang', Hy_ang, ...
+    'Hz_mag', Hz_mag, 'Hz_ang', Hz_ang, ...
+    'fofr', fofr, ...
+    'T1', T1, 'T2', T2, 'T3', T3, 'T4', T4, ...
+    'k', k, 'f', f, 'a', a);
     try
-    [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}, hx{ii},hy{ii}] = ...
-        lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
+    [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii},hx_c{ii},hy_c{ii}] = ...
+        lw_vs_d_mex(data,eigens,Amk,power);
     catch
         s0_c{ii} = NaN(1001,1);
         s1_c{ii} = NaN(1001,1);
@@ -66,6 +106,7 @@ for ii = 1:size(filenames,2)
         hx{ii} = NaN(1001,1);
         hy{ii} = NaN(1001,1);
     end
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

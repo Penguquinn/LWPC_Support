@@ -29,7 +29,7 @@ for n=1:length(hprime)
         prof(2,:) = en;
         filenames{ii} = sprintf('%03.fb%02.f',hprime(n)*10,beta(m)*1000);
         fid = fopen([save_path filenames{ii} '.prf'],'w+');
-        fprintf(fid, '750b470_prfl\n')
+        fprintf(fid, '750b470_prfl\n');
         fprintf(fid,'SPECIES   1\n');
             fprintf(fid,'CHARGE   -1\n');
             fprintf(fid,'MASS-RATIO    1\n');
