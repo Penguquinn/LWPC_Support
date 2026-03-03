@@ -32,14 +32,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int nc = (int)strlen(file_in);
 
     /* Optional: display info in MATLAB Command Window */
-    mexPrintf("LWPC data location length: %d\n", dc);
-    mexPrintf("LWPC input file length: %d\n", nc);
+    mexPrintf("LWPC data location length: %s\n", lwpcDAT_loc);
+    mexPrintf("LWPC input file length: %s\n", file_in);
     mexEvalString("drawnow;");  // ensure output is flushed
 
     /* Call the Fortran wrapper */
     LWPM_C(lwpcDAT_loc, dc, file_in, nc);
 
     /* No outputs */
+    //return 0;
 }
 // extern void LWPM_C(void* lwpcDAT_loc, int datloc, const char* file_name, int file_name_len);
 

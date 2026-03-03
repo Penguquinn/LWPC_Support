@@ -64,15 +64,16 @@ c*******************!***************************************************
       character*  9 run_date
       character*256 file_name
       logical       first
-      integer       logical_unit
+      integer       logical_unit, unit
 
       data          mon/'Jan','Feb','Mar','Apr','May','Jun',
      &                  'Jul','Aug','Sep','Oct','Nov','Dec'/
       data          first/.true./
 
-
+      OPEN(NEWUNIT=unit, FILE='SF_debug.txt',
+     & ACTION='WRITE', STATUS='REPLACE')
       if (first) then
-
+         write(unit,*) "76"
 c        Set up random number for the unique three character string
 c        First, set up the seed for the random number generator
          call GET_TIME (ihr,imin,isec)
@@ -105,7 +106,7 @@ c        This string is constant for any given run.
          else
             char3=CHAR(n3+23)
          end if
-
+         write(unit,*) "109"
 c        Get the date of the current run.
          call GET_DATE (iy,im,id)
          iy=MOD(iy,100)
@@ -118,10 +119,11 @@ c        Get the date of the current run.
 
 c     Get the full file name including the directory.
       INQUIRE (unit=logical_unit,name=file_name)
+      write(unit,*) "122"
 
 c     Convert to lower case
       call STR_LOWER (file_name,1,ISTR_LENGTH(file_name))
-
+      write(unit,*) "126"
       l1=1
       l2=iSTR_LENGTH (file_name)
 
@@ -137,6 +139,7 @@ c           name    is the file name
      &        char1//char2//char3//' '//
      &        prgm_id(:ISTR_LENGTH(prgm_id))//' '//
      &        file_name(l1:l2)
-
+      write(unit,*) "142"
+      close(unit)
       RETURN
       END      ! SET_FILE_ID

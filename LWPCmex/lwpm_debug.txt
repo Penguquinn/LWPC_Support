@@ -1,0 +1,7 @@
+ lwpcDAT_f: C:\Users\qdh0004\Documents\VSCODE\MATLAB\LWPC_Support\LWPCmex\data\\
+ lwpcDAT_f _ len:           68
+ fname_f: bearings.inp
+ flwn:            8
+ Made it to line: 933
+ Made it to line: 974
+ Made it to line: 1031

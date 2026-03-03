@@ -16,10 +16,12 @@ contains
   character(kind=c_char), intent(in) :: file_name(file_name_len)
 
   character(len=:), allocatable :: lwpcDAT_f, fname_f
-  integer :: i
+  integer :: i, unit
 
   allocate(character(len=lwpcDAT_len) :: lwpcDAT_f)
   allocate(character(len=file_name_len) :: fname_f)
+
+  
 
   do i = 1, lwpcDAT_len
       lwpcDAT_f(i:i) = lwpcDAT_loc(i)
@@ -29,9 +31,12 @@ contains
       fname_f(i:i) = file_name(i)
   end do
   fname_f(file_name_len+1:file_name_len+1) = c_null_char
-  write(*,*) "It worked"
-  print *, lwpcDAT_f
-  print *, fname_f
+  OPEN(NEWUNIT=unit, FILE='lwpm_c_wrapper_debug.txt', ACTION='WRITE', STATUS='UNKNOWN', POSITION='APPEND')
+  write(unit,*) 'lwpcDAT_f: ', lwpcDAT_f
+  write(unit,*) 'lwpcDAT_f: ', lwpcDAT_len
+  write(unit,*) 'fname_f: ', fname_f
+  write(unit,*) 'fname_f: ', file_name_len
+  CLOSE(unit)
 
   call LWPM(lwpcDAT_f, lwpcDAT_len, fname_f,file_name_len)
 

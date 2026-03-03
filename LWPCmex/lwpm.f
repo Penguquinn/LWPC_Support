@@ -688,7 +688,8 @@ c     &              CMDLine, lwpcDAT_loc
      &              print_swg,print_mds,print_lwf,print_mc,print_wf,
      &              print_grd,
      &              mc_step,arb_azim,lu_wfd,lu_wfa,lu_wfp,
-     &              c_year,c_month,c_day, nc, dc
+     &              c_year,c_month,c_day, unit
+      INTEGER(C_INT), VALUE :: nc, dc
 
       real          lat,lon,lub,incl,
      &              map_lat(2),map_lon(2),map_size(2),
@@ -841,12 +842,18 @@ c         file_name=pgm_name
 c      else
 c         file_name=CMDLine
 c      end if
-      file_name(nc+1:) = ''
-      nf=ISTR_LENGTH(file_name)
+      file_name(nc+1:) = ' '
+c      nf=ISTR_LENGTH(file_name)
+      nf = len_trim(file_name)
 
       file_name(nf+1:nf+4)='.inp'
-      write(*,*) TRIM(file_name)
-      write(*,*) TRIM(lwpcDAT_loc)
+      OPEN(NEWUNIT=unit, FILE='lwpm_debug.txt',
+     & ACTION='WRITE', STATUS='REPLACE')
+      write(unit,*) 'lwpcDAT_f: ', trim(lwpcDAT_loc)
+      write(unit,*) 'lwpcDAT_f _ len: ', dc
+      write(unit,*) 'fname_f: ', trim(file_name)
+      write(unit,*) 'flwn: ', nc
+      
       OPEN (lwpcINP_lun,file=file_name,status='old')
 
       file_name(nf+1:nf+4)='.log'
@@ -912,7 +919,7 @@ c         call GET_TIME (c_hrs,c_mins,c_secs,c_hsecs)
      & '(a4,''-'',a2,''-'',a2,'' '',a2,'':'',a2,'':'',a2)') 
      & date(1:4),date(5:6),date(7:8), 
      & time(1:2),time(3:4),time(5:6)
-
+       write(unit,*) 'Made it to line: ', "922"
          write(lwpcLOG_lun,
      &        '(/''Run started  on '',a24)') systime
 c         write(lwpcLOG_lun,
@@ -923,7 +930,7 @@ c     &          c_month,c_day,c_year,c_hrs,c_mins,c_secs
       else
 
 c        Set flags
-
+      write(unit,*) 'Made it to line: ', "933"
          if (gcpath) then
 
 c           Print path segmentation only
@@ -964,17 +971,18 @@ c     Length of the root file name
 
 c     Get bearing angles
       rng_mx=range_max
+      write(unit,*) 'Made it to line: ', "974"
       call LWP_SET_BRNG
      &    (tlat,tlon,bflag,op_lat,op_lon,brsltn,
      &     mxpath,nrpath,path_bearing,path_range,
      &     rxlat,rxlon,rxrho,rng_mx)
-
+      
 c     Check if this is a preview (GCPATH)
 
       if (gcpath) then
 
 c        Print path segmentation only
-
+      write(unit,*) 'Made it to line: ', "985"
 c        Loop over path bearings
          do nb=1,nrpath
 
@@ -995,7 +1003,7 @@ c        Loop over path bearings
             else
                call LWP_PATH (month,day,year,UT)
             end if
-
+            write(unit,*) 'Made it to line: ', "1006"
             write(lwpcLOG_lun,
      &          '(/''case_id:   '',a/
      &             ''xmtr_id               tlat    tlon   '',
@@ -1020,7 +1028,7 @@ c        Loop over path bearings
             write(lwpcLOG_lun,'('' '')')
          end do
       else
-
+      write(unit,*) 'Made it to line: ', "1031"
 c        Set up the mode parameter calculations.
 
 c        Check if the MDS file exists:
@@ -1037,7 +1045,7 @@ c        File for storage of mode data
          INQUIRE (file=file_name,exist=exists)
 
          if (.not.exists) then
-
+            write(unit,*) 'Made it to line: ', "not exists"
 c           The mode data file does not exist;
 c           set up a new set of paths.
 
@@ -1047,11 +1055,14 @@ c           New file for storage of mode data
      &                   iostat=iocheck,err=90)
 
             archive='***'
+            write(unit,*) 'Made it to line: ', "post open mds"
             call SET_FILE_ID (lu_mds,prgm_id,file_id(1))
             file_id(2)='***'
             file_id(3)='***'
+            write(unit,*) 'Made it to line: ', "1061"
 
 c           Write header
+            write(unit,*) 'Made it to line: ', "1063"
             call WRITE_HDR
      &          (lu_mds,print_mds,
      &           archive,file_id,prgm_id,
@@ -1425,6 +1436,7 @@ c     Error exits
      &       ''I/O error '',i3,'' occurred trying to open '',
      &       ''file: '',a)')
      &         iocheck,file_name(:ISTR_LENGTH(file_name))
-
+      CLOSE(unit)
+      STOP
       END  SUBROUTINE
 

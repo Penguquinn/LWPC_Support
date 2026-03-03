@@ -10,7 +10,7 @@ libDir      = fullfile(rootDir,'library');
 dataDir     = fullfile(rootDir,'data');
 includeDir  = fullfile(rootDir,'include');
 wrapperC    = fullfile(rootDir,'wrapper.c');        % your C wrapper
-wrapperF    = fullfile(rootDir,'lwpm_c_wrapper.f90'); % Fortran wrapper
+wrapperF    = fullfile(rootDir,'lwpm_c_wrapper.F90'); % Fortran wrapper
 lwpmFor     = fullfile(rootDir,'lwpm.f');         % main LWPM driver
 
 %% =========================
@@ -51,7 +51,7 @@ end
 disp('Compiling Fortran wrapper...');
 [~, name, ~] = fileparts(wrapperF);
 wrapperObj = fullfile(rootDir,[name,'.obj']);
-mex('-c',wrapperF,['-I',includeDir]);
+mex('-c',wrapperF,['-I',includeDir],'COMPFLAGS="$COMPFLAGS /free"');
 
 %% =========================
 %% 4. Compile main LWPM driver
@@ -83,13 +83,15 @@ allObjs = [libObjFiles, {wrapperObj, lwpmObj, wrapperCObj}];
 % bigString = [bigString, ', ', allObjs{ii}];
 % end
 mex( [rootDir,'/wrapper.obj'], [rootDir,'/lwpm.obj'], [rootDir,'/lwpm_c_wrapper.obj'], allObjs{:}, ...
-    ['-I' includeDir], '-L C:\\ProgramData\\MATLAB\\SupportPackages\\R2025b\\3P.instrset\\mingw_w64.instrset\\lib\\gcc\\x86_64-w64-mingw32\\8.1.0\\', ...
-    '-lgfortran','-lquadmath','-output', 'LWPM')
+    ['-I' includeDir], '-output', 'LWPM')
 
 %% =========================
 %% 7. Clean up object files
 %% =========================
 disp('Cleaning up intermediate object files...');
-delete(allObjs{:});
+% delete(allObjs{:});
 
 disp('=== LWPM MEX build complete! ===');
+
+%% Optional run lwpm
+LWPM('C:\Users\qdh0004\Documents\VSCODE\MATLAB\LWPC_Support\LWPCmex\data\\','bearings')
