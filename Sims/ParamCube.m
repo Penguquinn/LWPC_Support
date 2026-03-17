@@ -11,17 +11,21 @@ dist_max = 4000;
 angle_min = 230;
 angle_max = 270;
 freak = 24;
-output_path = filepathing_wsl();
-
-cleanup(0);
+paths = 'C:\LWPCwin\';
+% cleanup(0);
+%clean_w(1);
+hprime = 60:.5:62;
+beta = .35:0.01:0.37;
+h_0 = 75:.5:77;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%    Make a list of files to run    %%%%
+%%%%        Build Profile files        %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tagsm = angle_min:angle_step:angle_max;
-filenames = LWPC_profile_maker_en();
-paths = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\';
+filenames = chapman_prf(paths,hprime,beta,h_0);
+% filenames = prf_exp(paths,hprime,beta);
+
 
 for ii=1:numel(filenames)
 TXdata{1,ii} = 'NAA240';
@@ -34,156 +38,119 @@ end
 xmtr_loc = [46.366   -98.336];
 rxvr_loc = [32.466224, -85.470938];
 
-err = InputFileWrite(numel(filenames),filenames,TXdata,rxvr_loc,4000,paths);
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%        build Profile files        %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+chapman_write(paths,hprime,beta,h_0,filenames,rxvr_loc(1),rxvr_loc(2),dist_max,TXdata{1})
+% exp_write(paths,hprime,beta,filenames)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Run list of lwpc commands      %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 parfor ii = 1:numel(filenames)
 [status, cmdout] = RunLWPC(filenames{ii});
+
 end
-cleanup(0);
+clean_w(0);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% for ii = 1:size(filenames,2)
-%     try
-%     [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii}, hx{ii},hy{ii}] = ...
-%         lw_vs_d_function(output_path,filenames{ii},freak,dist_max);
-%     catch
-%         s0_c{ii} = NaN(1001,1);
-%         s1_c{ii} = NaN(1001,1);
-%         s2_c{ii} = NaN(1001,1);
-%         s3_c{ii} = NaN(1001,1);
-%         hx{ii} = NaN(1001,1);
-%         hy{ii} = NaN(1001,1);
-%     end
-% end
-for ii=1:numel(filenames)
-[rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
-    Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
-    = read_output_lwpv3_T_fofr(paths, [filenames{ii},'.log']);
-power = 1;
-pi = 3.1415926535897932385;
-f = freak;
-w = 2*pi*f*1000; %rad/s
-c = 299792458; %m/s
-k = w/c; %rad/m
-k = k*1000; %rad/km
-
-a = 6370; %radius of earth in km
-data = struct( ...
-    'rho', rho, ...
-    'sigma', sigma, ...
-    'epsr', epsr, ...
-    'eigen', eigen, ...
-    'ht', ht, ...
-    'Ex_mag', Ex_mag, 'Ex_ang', Ex_ang, ...
-    'Ey_mag', Ey_mag, 'Ey_ang', Ey_ang, ...
-    'Ez_mag', Ez_mag, 'Ez_ang', Ez_ang, ...
-    'Hx_mag', Hx_mag, 'Hx_ang', Hx_ang, ...
-    'Hy_mag', Hy_mag, 'Hy_ang', Hy_ang, ...
-    'Hz_mag', Hz_mag, 'Hz_ang', Hz_ang, ...
-    'fofr', fofr, ...
-    'T1', T1, 'T2', T2, 'T3', T3, 'T4', T4, ...
-    'k', k, 'f', f, 'a', a);
-    try
-    [s0_c{ii},s1_c{ii},s2_c{ii},s3_c{ii},hx_c{ii},hy_c{ii}] = ...
-        lw_vs_d_mex(data,eigens,Amk,power);
-    catch
-        s0_c{ii} = NaN(1001,1);
-        s1_c{ii} = NaN(1001,1);
-        s2_c{ii} = NaN(1001,1);
-        s3_c{ii} = NaN(1001,1);
-        hx{ii} = NaN(1001,1);
-        hy{ii} = NaN(1001,1);
+for kk = 1:numel(h_0)
+    for ii = 1:numel(hprime)
+        for jj = 1:numel(beta)
+            try
+            [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}, hx{ii,jj,kk},hy{ii,jj,kk}] = ...
+                lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
+            catch
+                s0_c{ii,jj,kk} = NaN(1001,1);
+                s1_c{ii,jj,kk} = NaN(1001,1);
+                s2_c{ii,jj,kk} = NaN(1001,1);
+                s3_c{ii,jj,kk} = NaN(1001,1);
+                hx{ii,jj,kk} = NaN(1001,1);
+                hy{ii,jj,kk} = NaN(1001,1);
+            end
+        end
     end
-
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%              Plotting             %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-curhp = 70:.1:81;
-gifFile = 'stokes_evolution_prf_sweep_beta_60.gif';
-delayTime = 0.1;   % seconds between frames
-dist_vec = (dist_max/length(s0_c{1}))*(1:length(s0_c{1}));
-fg = figure('Color','w');
-theme(fg,"light")
 
-for ii = 1:length(s0_c)
+% GIF settings
+gifFile = 'three_panel_animation.gif';
+delayTime = 0.3;
 
-    clf;  % clear figure for next frame
+%% Create figure
+fig = figure('Color','w');
+set(fig,'Position',[100 100 900 400])
 
-    % -------- Subplot 1 -------- %
-    subplot(2,2,1)
-    geoplot([xmtr_loc(1),rxvr_loc(1)],[xmtr_loc(2),rxvr_loc(2)])
-    geolimits([10 50], [-115 -60])
-    title('Prop from NLM to AU')
+for kk = 1:numel(h_0)
+    for ii = 1:numel(hprime)
+        for jj = 1:numel(beta)
 
-    % -------- Subplot 2 -------- %
-    subplot(2,2,2)
-    plot(dist_vec, s1_c{ii}./s0_c{ii}); hold on
-    plot(dist_vec, s2_c{ii}./s0_c{ii});
-    plot(dist_vec, s3_c{ii}./s0_c{ii});
-    yline(0)
-    xline(1880);
-    title('Stokes parameters normalized by S_0')
-    xlabel('Distance from transmitter (km)')
-    ylabel('Normalized magnitude')
-    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','northeast')
-    xlim([0 4000])
-    ylim([-1 1])
+    clf
 
-    % -------- Subplot 3 -------- %
-    subplot(2,2,3)
-    plot(dist_vec,10*log10(abs(hx{ii}))); hold on
-    plot(dist_vec,10*log10(abs(hy{ii})))
-    %plot(dist_vec,10*log10(abs(s2_c{ii})))
-    %plot(dist_vec,10*log10(abs(s3_c{ii})))
-    xline(1880);
-    title('Amplitude Hx and Hy')
-    xlabel('Distance from transmitter (km)')
-    ylabel('Amplitude (dB)')
-    legend('Hx','Hy','Location','northeast')
-    xlim([0 4000])
-    ylim([-20 60])
+    %% Subplot 1
+    subplot(2,3,1)
+    plot(10*log10(abs(s0_c{ii,jj,kk})),'LineWidth',1.5)
+    ylim([0,150])
+    title('S0')
+    grid on
 
-    % -------- Subplot 4 -------- %
-    subplot(2,2,4)
-    plot(dist_vec,20*log10(abs(s1_c{ii}./s0_c{ii}))); hold on
-    plot(dist_vec,20*log10(abs(s2_c{ii}./s0_c{ii})))
-    plot(dist_vec,20*log10(abs(s3_c{ii}./s0_c{ii})))
-    xline(1880);
-    title('Stokes parameters normalized by S_0, log scale')
-    xlabel('Distance from transmitter (km)')
-    ylabel('Amplitude (dB)')
-    legend('S_1 (Q)','S_2 (U)','S_3 (V)','Location','northeast')
-    xlim([0 4000])
-    ylim([-120 0])
+    %% Subplot 2
+    subplot(2,3,2)
+    plot(10*log10(abs(s1_c{ii,jj,kk})),'LineWidth',1.5)
+    title('S1')
+    ylim([0,150])
+    grid on
 
-    sgtitle(sprintf("Sweep of h` from %d to %d (%f)",min(curhp),max(curhp),curhp(ii)))
+    %% Subplot 3
+    subplot(2,3,3)
+    plot(10*log10(abs(s2_c{ii,jj,kk})),'LineWidth',1.5)
+    title('S2')
+    ylim([0,150])
+    grid on
+
+    %% Subplot 4
+    subplot(2,3,4)
+    plot(10*log10(abs(s3_c{ii,jj,kk})),'LineWidth',1.5)
+    title('S3')
+    ylim([0,150])
+    grid on
+
+    %% Subplot 5
+    subplot(2,3,5)
+    plot(s1_c{ii,jj,kk}./s0_c{ii,jj,kk})
+    hold on;
+    plot(s2_c{ii,jj,kk}./s0_c{ii,jj,kk})
+    plot(s3_c{ii,jj,kk}./s0_c{ii,jj,kk})
+
+
+    %% Subplot 6
+    h = [20:5:65 67:2:120 120:10:200];
+    Nm = 1;
+    en = Nm .* exp( 0.5 * ( beta(jj) * (hprime(ii) - h) + exp(-beta(jj) * (hprime(ii) - h_0(kk))) - exp(-beta(jj) * (h - h_0(kk))) ) );
+    subplot(2,3,6);
+    plot(log10(en),h)
+    
+
+    sgtitle(sprintf('H` = %f beta = %f h_0 = %f',hprime(ii),beta(jj),h_0(kk)))
+
     drawnow
 
-    % -------- Capture frame --------
-    frame = getframe(gcf);
+    %% Capture frame for GIF
+    frame = getframe(fig);
     im = frame2im(frame);
-    [imind, cm] = rgb2ind(im, 256);
+    [A,map] = rgb2ind(im,256);
 
-    % -------- Write to GIF --------
-    if ii == 1
-        imwrite(imind, cm, gifFile, 'gif', ...
-                'Loopcount', inf, 'DelayTime', delayTime);
+    if ii*jj*kk == 1
+        imwrite(A,map,gifFile,'gif','LoopCount',inf,'DelayTime',delayTime);
     else
-        imwrite(imind, cm, gifFile, 'gif', ...
-                'WriteMode', 'append', 'DelayTime', delayTime);
+        imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
+    end
+        end
     end
 end
+
+disp('GIF saved.')

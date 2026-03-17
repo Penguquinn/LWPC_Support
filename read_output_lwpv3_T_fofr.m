@@ -103,6 +103,10 @@ while ~feof(fid) %run til end of file
         n = n+1;
         for h = 1:65
             tline = fgetl(fid);
+            if tline(1:3) == 'ERR'
+                tline= fgetl(fid);
+                continue
+            end
             n = n+1;
             A = sscanf(tline,'%f');
             ht(h,m) =     A( 1);

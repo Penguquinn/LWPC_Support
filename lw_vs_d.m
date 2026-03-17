@@ -19,8 +19,8 @@ dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
 fclose all;
-output_path = 'C:\Users\quinn\Documents\MATLAB\LWPC_Support\LWPCmex\';
-log_file = 'bearings.log';
+output_path = 'C:\LWPCwin\';
+log_file = '600b370h0750.log';
 
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...

@@ -1,33 +1,4 @@
-save_path = '\\wsl.localhost\Ubuntu\home\qdh0004\git_repos\LWPC\LWPCv21\input\';
-
-% h = 50:5:100;
- 
-% hprime = 68:.2:87;
-% beta = 0.25:0.005:0.66;
-% h_0 = 100;
-
-% %expand search space in beta
-% hprime = 68:.2:87;
-% beta = 0.15:0.005:0.25-0.005;
-% h_0 = 100;
-
-% hprime = 76;
-% beta = 0.6;
-
-% %evaluate role of h_0 in daytime
-% hprime = 73;
-% beta = 0.3;
-% h_0 = 75:0.1:150;
-
-% %evaluate role of h_0 in nighttime
-% hprime = 86;
-% beta = 0.44;
-% h_0 = 86:0.1:200;
-
-% create a 3-parameter search space
-hprime = 68.0:0.2:90.0;
-beta = 0.300:0.005:0.660;
-h_0 = 75.0:1:110.0;
+function filenames = chapman_prf(save_path,hprime,beta,h_0)
 
 
 
@@ -40,12 +11,17 @@ eps0 = 8.8541878128e-12; %F/m
 me = 9.1093837015e-31; %kg
 wrprime = 2.5e5;
 
+
+
 for hh=1:length(hprime)
     for bb=1:length(beta)
         for tt=1:length(h_0)
-            h = 50:5:100;
-            
+            h = [20:5:75 77:2:120 120:10:200];
+            if hprime(hh) >= h_0(tt)
+                continue
+            end
             basename = sprintf('%03.fb%03.fh%04.f',hprime(hh)*10,beta(bb)*1000,h_0(tt)*10);
+            filenames{hh,bb,tt} = basename;
             
             %calculate N_0 and H based on the given values
             Htest = 5:.01:25;
@@ -84,4 +60,5 @@ for hh=1:length(hprime)
         
         end
     end
+end
 end
