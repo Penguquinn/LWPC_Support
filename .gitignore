@@ -1,2 +1,6 @@
 *.mat
 *.asv
+*.log
+*.prf
+*.mds
+*.lwf

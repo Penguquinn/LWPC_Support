@@ -14,22 +14,22 @@ freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
 clean_w(1);
-hprime = 71:1:100;
-beta = .31:.01:0.6;
-h_0 = 5;%60:4:100;
+hprime = 71:1:80;
+beta = .31:.01:0.4;
+h_0 = 64:4:100;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%        Build Profile files        %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tagsm = angle_min:angle_step:angle_max;
-% filenames = chapman_prf(paths,hprime,beta,h_0);
-filenames = prf_exp(paths,hprime,beta);
+filenames = chapman_prf(paths,hprime,beta,h_0);
 
 
-for ii=1:numel(filenames)
-TXdata{1,ii} = 'NAA240';
-end
+
+% for ii=1:numel(filenames)
+TXdata{1} = 'NAA240';
+% end
 disp("Finished PRF")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%        Build input files          %%%%
@@ -45,8 +45,8 @@ path_len = deg2km(path_len);
 
 
 
-% chapman_write(paths,hprime,beta,h_0,filenames,rxvr_loc(1),rxvr_loc(2),dist_max,TXdata{1})
-exp_write(paths,hprime,beta,filenames,TXdata{1},rxvr_loc(1),rxvr_loc(2))
+chapman_write(paths,hprime,beta,h_0,filenames,rxvr_loc(1),rxvr_loc(2),dist_max,TXdata{1})
+
 disp("Finished INP")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Run list of lwpc commands      %%%%

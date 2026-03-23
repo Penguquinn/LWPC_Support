@@ -13,9 +13,9 @@ angle_max = 270;
 freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
-clean_w(1);
-hprime = 71:1:100;
-beta = .31:.01:0.6;
+% clean_w(1);
+hprime = 70.1:.1:100;
+beta = .301:.001:0.6;
 h_0 = 5;%60:4:100;
 
 
@@ -52,7 +52,10 @@ disp("Finished INP")
 %%%%    Run list of lwpc commands      %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 parfor ii = 1:numel(filenames)
-[status, cmdout] = RunLWPC(filenames{ii});
+    if isfile(sprintf("C:\\LWPCwin\\%s.log",filenames{ii}))
+        continue
+    end
+    [status, cmdout] = RunLWPC(filenames{ii});
 
 end
 clean_w(0);
@@ -61,23 +64,23 @@ disp("Finished RUN")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for kk = 1:numel(h_0)
-    for ii = 1:numel(hprime)
-        for jj = 1:numel(beta)
-            try
-            [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}, hx{ii,jj,kk},hy{ii,jj,kk}, rho_full] = ...
-                lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
-            catch
-                s0_c{ii,jj,kk} = NaN(1001,1);
-                s1_c{ii,jj,kk} = NaN(1001,1);
-                s2_c{ii,jj,kk} = NaN(1001,1);
-                s3_c{ii,jj,kk} = NaN(1001,1);
-                hx{ii,jj,kk} = NaN(1001,1);
-                hy{ii,jj,kk} = NaN(1001,1);
-            end
+
+for ii = 1:numel(hprime)
+    for jj = 1:numel(beta)
+        try
+        [s0_c{ii,jj},s1_c{ii,jj},s2_c{ii,jj},s3_c{ii,jj}, hx{ii,jj},hy{ii,jj}, rho_full] = ...
+            lw_vs_d_function(paths,filenames{ii,jj},freak,dist_max);
+        catch
+            s0_c{ii,jj} = NaN(1001,1);
+            s1_c{ii,jj} = NaN(1001,1);
+            s2_c{ii,jj} = NaN(1001,1);
+            s3_c{ii,jj} = NaN(1001,1);
+            hx{ii,jj} = NaN(1001,1);
+            hy{ii,jj} = NaN(1001,1);
         end
     end
 end
+
 disp("Finished READ")
 
 
@@ -87,22 +90,20 @@ disp("Finished READ")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 idx = find(abs(rho_full-path_len)==min(abs(rho_full-path_len)));
-for kk = 1:numel(h_0)
-    for ii = 1:numel(hprime)
-        for jj = 1:numel(beta)
-            gs0(ii,jj,kk) = s0_c{ii,jj,kk}(idx);
-            gs1(ii,jj,kk) = s1_c{ii,jj,kk}(idx)./gs0(ii,jj,kk);
-            gs2(ii,jj,kk) = s2_c{ii,jj,kk}(idx)./gs0(ii,jj,kk);
-            gs3(ii,jj,kk) = s3_c{ii,jj,kk}(idx)./gs0(ii,jj,kk);
+for ii = 1:numel(hprime)
+    for jj = 1:numel(beta)
+        gs0(ii,jj) = s0_c{ii,jj}(idx);
+        gs1(ii,jj) = s1_c{ii,jj}(idx)./gs0(ii,jj);
+        gs2(ii,jj) = s2_c{ii,jj}(idx)./gs0(ii,jj);
+        gs3(ii,jj) = s3_c{ii,jj}(idx)./gs0(ii,jj);
 
-        end
     end
 end
-load("C:\Users\qdh0004\OneDrive - Auburn University\Desktop\nb_polarization\CH240815013000NLK_001.mat")
+load("nb_polarization\CH240815013000NLK_001.mat")
 
-s1 = movmean(s1./s0,20);
-s2 = movmean(s2./s0,20);
-s3 = movmean(s3./s0,20);
+s1 = movmean(s1./s0,30);
+s2 = movmean(s2./s0,30);
+s3 = movmean(s3./s0,30);
 
 sr = complex(s1,s2) * exp( -1i * (pi + mean(angle(complex(s1,s2)))));
 s1r = real(sr); s2r = imag(sr);
@@ -111,14 +112,12 @@ legend('s1','s2','s3')
 
 
 for ii = 1:size(s0,1)
-[~, linearIndex] = min(abs(gs1(:) - s1(ii)));
-[dim1(ii,1), dim2(ii,1), dim3(ii,1)] = ind2sub(size(gs1), linearIndex);
-
-[~, linearIndex] = min(abs(gs2(:) - s2(ii)));
-[dim1(ii,2), dim2(ii,2), dim3(ii,2)] = ind2sub(size(gs1), linearIndex);
-
-[~, linearIndex] = min(abs(gs3(:) - s3(ii)));
-[dim1(ii,3), dim2(ii,3), dim3(ii,3)] = ind2sub(size(gs1), linearIndex);
+[~, linearIdx] = min(abs(gs1 - s1(ii)), [], 'all');
+[row1(ii), col1(ii)] = ind2sub(size(gs1), linearIdx);
+[~, linearIdx] = min(abs(gs2 - s2(ii)), [], 'all');
+[row2(ii), col2(ii)] = ind2sub(size(gs2), linearIdx);
+[~, linearIdx] = min(abs(gs3 - s3(ii)), [], 'all');
+[row3(ii), col3(ii)] = ind2sub(size(gs3), linearIdx);
 
 end
 
@@ -132,7 +131,7 @@ end
 gifFile = 'errorMapOverTime.gif';
 delayTime = 0.5;
 fig2 = figure('Color','w');
-set(fig2,'Position',[100 100 900 400])
+set(fig2,'Position',[100 100 900 600])
 
 for sel = 1:50
 
@@ -143,55 +142,56 @@ for sel = 1:50
 % temp3 = gs3(dim1(1,3),:,:);
 % temp3 = squeeze(abs(temp3 - s3(sel)));
 
-temp1 = gs1(:,1,:);
-temp1 = squeeze(abs(temp1 - s1r(sel)));
-temp2 = gs2(:,1,:);
-temp2 = squeeze(abs(temp2 - s2r(sel)));
-temp3 = gs3(:,1,:);
-temp3 = squeeze(abs(temp3 - s3(sel)));
+temp1 = gs1-s1r(sel);
+temp2 = gs2-s2r(sel);
+temp3 = gs3-s3(sel);
+
 
 mag = sqrt(temp1.^2 + temp2.^2 + temp3.^2);
 [~, idx] = min(mag(:));
 [row, col] = ind2sub(size(mag), idx);
 
 
-subplot(1,3,1)
+subplot(2,2,1)
 % imagesc(squeeze(gs1)); hold on;
-imagesc(temp1); hold on;
+imagesc(hprime,beta,temp1); hold on;
 
-plot(col, row, 'p', ...
+plot(hprime(col), beta(row), 'p', ...
     'MarkerEdgeColor','black', ...
     'MarkerFaceColor','yellow', ...
     'MarkerSize',15)
 axis xy          % puts origin at bottom-left (like spectrograms)
 colorbar
-xlabel("H0")
+ylabel("Beta",Color='black',FontSize=15)
 colormap(jet)    % or parula, turbo, hot, etc.
-title('Error S1')
-ylabel("hprime")
-subplot(1,3,2)
+title('Error S1',Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
+
+
+
+subplot(2,2,2)
 
 % imagesc(squeeze(gs2)); hold on;
-imagesc(temp2); hold on;
+imagesc(hprime,beta,temp2); hold on;
 
-plot(col, row, 'p', ...
+plot(hprime(col), beta(row), 'p', ...
     'MarkerEdgeColor','black', ...
     'MarkerFaceColor','yellow', ...
     'MarkerSize',15)
 axis xy          % puts origin at bottom-left (like spectrograms)
 colorbar
 colormap(jet)    % or parula, turbo, hot, etc.
-xlabel("H0")
-title('Error S2')
-ylabel("hprime")
+ylabel("Beta",Color='black',FontSize=15)
+title('Error S2',Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
 
 
-subplot(1,3,3)
-temp3(isnan(temp3))
+subplot(2,2,3)
+% temp3(isnan(temp3))
 % imagesc(squeeze(gs3)); hold on;
-imagesc(temp3); hold on;
+imagesc(hprime,beta,temp3); hold on;
 
-plot(col, row, 'p', ...
+plot(hprime(col), beta(row), 'p', ...
     'MarkerEdgeColor','black', ...
     'MarkerFaceColor','yellow', ...
     'MarkerSize',15)
@@ -199,9 +199,25 @@ axis xy          % puts origin at bottom-left (like spectrograms)
 colorbar
 colormap(jet)    % or parula, turbo, hot, etc.
 % colormap("bone")
-title('Error S3')
-xlabel("H0")
-ylabel("hprime")
+title('Error S3',Color='black',FontSize=15)
+ylabel("Beta",Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
+
+
+subplot(2,2,4)
+% imagesc(squeeze(gs1)); hold on;
+imagesc(hprime,beta,mag); hold on;
+
+plot(hprime(col), beta(row), 'p', ...
+    'MarkerEdgeColor','black', ...
+    'MarkerFaceColor','yellow', ...
+    'MarkerSize',15)
+axis xy          % puts origin at bottom-left (like spectrograms)
+colorbar
+ylabel("Beta",Color='black',FontSize=15)
+colormap(jet)    % or parula, turbo, hot, etc.
+title('Total RSS Error',Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
 drawnow
 frame = getframe(fig2);
     
@@ -237,3 +253,65 @@ for ii = 1:26
         imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
     end
 end
+
+
+%% extra plot
+gifFile = 'stokesSpace.gif';
+delayTime = 0.5;
+fig4 = figure('Color','w');
+set(fig4,'Position',[100 100 900 600])
+
+
+subplot(1,3,1)
+% imagesc(squeeze(gs1)); hold on;
+imagesc(hprime,beta,gs1); hold on;
+
+
+axis xy          % puts origin at bottom-left (like spectrograms)
+colorbar
+ylabel("Beta",Color='black',FontSize=15)
+colormap(jet)    % or parula, turbo, hot, etc.
+title('Normalized S1',Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
+
+
+
+subplot(1,3,2)
+
+% imagesc(squeeze(gs2)); hold on;
+imagesc(hprime,beta,gs2); hold on;
+
+axis xy          % puts origin at bottom-left (like spectrograms)
+colorbar
+colormap(jet)    % or parula, turbo, hot, etc.
+ylabel("Beta",Color='black',FontSize=15)
+title('Normalized S2',Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
+
+
+subplot(1,3,3)
+% temp3(isnan(temp3))
+% imagesc(squeeze(gs3)); hold on;
+imagesc(hprime,beta,gs3); hold on;
+
+axis xy          % puts origin at bottom-left (like spectrograms)
+colorbar
+colormap(jet)    % or parula, turbo, hot, etc.
+% colormap("bone")
+title('Normalized S3',Color='black',FontSize=15)
+ylabel("Beta",Color='black',FontSize=15)
+xlabel("hprime",Color='black',FontSize=15)
+
+
+
+drawnow
+frame = getframe(fig4);
+    
+    im = frame2im(frame);
+    [A,map] = rgb2ind(im,256);
+    if sel == 1
+        imwrite(A,map,gifFile,'gif','LoopCount',inf,'DelayTime',delayTime);
+    else
+        imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
+    end
+

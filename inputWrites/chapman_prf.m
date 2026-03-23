@@ -16,7 +16,8 @@ wrprime = 2.5e5;
 for hh=1:length(hprime)
     for bb=1:length(beta)
         for tt=1:length(h_0)
-            h = [20:5:75 77:2:120 120:10:200];
+            h = h_0(tt)-4 :2 : h_0(tt)+4;
+            % h(h>h_0(tt)) = [];
             if hprime(hh) >= h_0(tt)
                 continue
             end
