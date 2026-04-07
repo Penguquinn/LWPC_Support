@@ -19,9 +19,9 @@ dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
 fclose all;
-output_path = '\\wsl.localhost\Ubuntu-24.04\home\quinn\work\v3.0.1\';
+output_path = 'C:\\LWPCwin\\store\\';
 %log_file = 'CircProp210.log';
-log_file = '780b640h1200_NAA-AU.log';
+log_file = 'test.log';
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
     = read_output_lwpv3_T_fofr(output_path, log_file);
