@@ -14,9 +14,9 @@ freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
 clean_w(1);
-hprime = 71:1.5:90;
+hprime = 71:1:90;
 beta = .3:.03:0.6;
-h_0 = 90;%:3:120;%80:2:100;
+h_0 = 100:10:120;%80:2:100;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,24 +61,52 @@ disp("Finished INP")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-parfor kk = 1:numel(h_0)
-    for ii = 1:numel(hprime)
-        for jj = 1:numel(beta)
-            [status, cmdout] = RunLWPC(filenames{ii});
-            try
-            [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}, hx{ii,jj,kk},hy{ii,jj,kk}, rho_full] = ...
-                lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
-            catch
-                s0_c{ii,jj,kk} = NaN(1001,1);
-                s1_c{ii,jj,kk} = NaN(1001,1);
-                s2_c{ii,jj,kk} = NaN(1001,1);
-                s3_c{ii,jj,kk} = NaN(1001,1);
-                hx{ii,jj,kk} = NaN(1001,1);
-                hy{ii,jj,kk} = NaN(1001,1);
-            end
-        end
+% parfor kk = 1:numel(h_0)
+%     for ii = 1:numel(hprime)
+%         for jj = 1:numel(beta)
+%             [status, cmdout] = RunLWPC(filenames{ii});
+%             try
+%             [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}, hx{ii,jj,kk},hy{ii,jj,kk}, rho_full] = ...
+%                 lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
+%             catch
+%                 s0_c{ii,jj,kk} = NaN(1001,1);
+%                 s1_c{ii,jj,kk} = NaN(1001,1);
+%                 s2_c{ii,jj,kk} = NaN(1001,1);
+%                 s3_c{ii,jj,kk} = NaN(1001,1);
+%                 hx{ii,jj,kk} = NaN(1001,1);
+%                 hy{ii,jj,kk} = NaN(1001,1);
+%             end
+%         end
+%     end
+% end
+elemn = numel(h_0)*numel(beta)*numel(hprime);
+s0_c = cell(elemn,1);
+s1_c = cell(elemn,1);
+s2_c = cell(elemn,1);
+s3_c = cell(elemn,1);
+parfor kk = 1:elemn
+    [status, cmdout] = RunLWPC(filenames{kk});
+    try
+    [s0_c{kk},s1_c{kk},s2_c{kk},s3_c{kk}, hx{kk},hy{kk}] = ...
+        lw_vs_d_function(paths,filenames{kk},freak,dist_max);
+    catch
+        s0_c{kk} = NaN(1001,1);
+        s1_c{kk} = NaN(1001,1);
+        s2_c{kk} = NaN(1001,1);
+        s3_c{kk} = NaN(1001,1);
+        hx{kk} = NaN(1001,1);
+        hy{kk} = NaN(1001,1);
     end
 end
+[~,~,~,~,~,~,rho_full] = lw_vs_d_function(paths,filenames{end},freak,dist_max);
+
+s0_c = reshape(s0_c,numel(hprime),numel(beta),numel(h_0));
+s1_c = reshape(s1_c,numel(hprime),numel(beta),numel(h_0));
+s2_c = reshape(s2_c,numel(hprime),numel(beta),numel(h_0));
+s3_c = reshape(s3_c,numel(hprime),numel(beta),numel(h_0));
+
+
+
 disp("Finished READ")
 save(sprintf('%dhp%d_%db%d_%dho%d.mat',min(hprime)*10,max(hprime)*10,min(beta)*1000,max(beta)*1000,min(h_0)*10,max(h_0)*10),"s0_c","s1_c","s3_c","s3_c")
 
