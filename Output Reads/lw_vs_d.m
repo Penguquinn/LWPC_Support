@@ -2,6 +2,7 @@
 
 % clearvars
 
+tic
 f = 24.0; txname = 'NAA';
 % f = 25.2; txname = 'NLM'; %transmitter frequency in kHz
 power = 1;
@@ -19,9 +20,14 @@ dtr = pi/180;   %change degrees to radians in eigenangle formulas
 rtd = 180/pi;
 
 fclose all;
-output_path = 'C:\\LWPCwin\\store\\';
+output_path = 'C:\LWPCwin\';
 %log_file = 'CircProp210.log';
-log_file = 'test.log';
+%% 780 600 1100 is nonphysical but 770 "" isnt
+% 800 600 1200 is max most corner of simspace and is phys
+% xxx xxx 1200 is physical
+% min min min is nonphysical
+
+log_file = '800b301h1200.log';
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
     = read_output_lwpv3_T_fofr(output_path, log_file);
@@ -49,13 +55,13 @@ nrpts = 1000;
 rho_max = max(rho);
 rho_full = 0:rho_max/nrpts:rho_max;
 
-for rho_ind = 1:length(rho_full)
-    for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
-        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc,data,eigens,Amk);
-        aa(rho_ind,nc) = amp;
-        pp(rho_ind,nc) = phs;
-    end
-end
+% for rho_ind = 1:length(rho_full)
+%     for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
+[amp,phs] = efficient_lw_sum_modes(power,rho_full,data,eigens,Amk);
+aa = amp;
+pp = phs;
+%     end
+% end
 
 aa_linear = 10.^(aa./20);
 cmplx_flds = aa_linear.*exp(1j.*pp.*pi/180);
@@ -66,7 +72,7 @@ s0 = abs(hx).^2 + abs(hy).^2;
 s1 = abs(hx).^2 - abs(hy).^2;
 s2 = 2*real(hx.*conj(hy));
 s3 = 2*imag(hx.*conj(hy));
-
+toc
 %calculate stokes parameters along the path
 % aa_linear = 10.^(aa./20);
 % s0 = abs(aa_linear(:,6)).^2 + abs(aa_linear(:,5)).^2;
@@ -85,27 +91,27 @@ xlabel('Distance from transmitter (km)')
 ylabel('Normalized magnitude')
 legend('S_1 (Q)','S_2 (U)','S_3 (V)')
 
-figure; plot(rho_full,10*log10(abs(s0)))
-hold on; plot(rho_full,10*log10(abs(s1)))
-hold on; plot(rho_full,10*log10(abs(s2)))
-hold on; plot(rho_full,10*log10(abs(s3)))
-xline(532); xline(1388); xline(2084);
-title('Stokes parameters, log scale')
-xlabel('Distance from transmitter (km)')
-ylabel('Amplitude (dB)')
-legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)')
-%xlim([0 2200])
-
-
-figure; plot(rho_full,20*log10(abs(s1./s0)))
-hold on; plot(rho_full,20*log10(abs(s2./s0)))
-hold on; plot(rho_full,20*log10(abs(s3./s0)))
-xline(532); xline(1388); xline(2084);
-title('Stokes parameters normalized by S_0, log scale')
-xlabel('Distance from transmitter (km)')
-ylabel('Normalized amplitude (dB)')
-legend('S_1 (Q)','S_2 (U)','S_3 (V)')
-%xlim([0 2200])
+% figure; plot(rho_full,10*log10(abs(s0)))
+% hold on; plot(rho_full,10*log10(abs(s1)))
+% hold on; plot(rho_full,10*log10(abs(s2)))
+% hold on; plot(rho_full,10*log10(abs(s3)))
+% xline(532); xline(1388); xline(2084);
+% title('Stokes parameters, log scale')
+% xlabel('Distance from transmitter (km)')
+% ylabel('Amplitude (dB)')
+% legend('S_0 (I)','S_1 (Q)','S_2 (U)','S_3 (V)')
+% %xlim([0 2200])
+% 
+% 
+% figure; plot(rho_full,20*log10(abs(s1./s0)))
+% hold on; plot(rho_full,20*log10(abs(s2./s0)))
+% hold on; plot(rho_full,20*log10(abs(s3./s0)))
+% xline(532); xline(1388); xline(2084);
+% title('Stokes parameters normalized by S_0, log scale')
+% xlabel('Distance from transmitter (km)')
+% ylabel('Normalized amplitude (dB)')
+% legend('S_1 (Q)','S_2 (U)','S_3 (V)')
+% %xlim([0 2200])
 
 
 

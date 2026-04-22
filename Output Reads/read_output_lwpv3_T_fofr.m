@@ -142,32 +142,32 @@ while ~feof(fid) %run til end of file
             end
         end
     end
-    if strncmp(tline, '  rho   lat    lon  azim   dip mgfld  sigma eps beta  h',length('  rho   lat    lon  azim   dip mgfld  sigma eps beta  h'))
-        tline = fgetl(fid);
-        n = n+1;
-        A = sscanf(tline,'%f %f %f %f %f %f %f %f %f %f %f');
-        nummodes = A(end);
-                %advance the line until you read the beginning of the mode list
-        while ~strncmp(tline,' mode  atten   v/c         rel exc 1',length(' mode  atten   v/c         rel exc 1'))
-            tline = fgetl(fid);
-            n = n+1;
-        end
-            tline = fgetl(fid);
-            n = n+1;
-        %until the end of the mode list, record attena and v/c
-        for mm = 1:nummodes
-            
-            A = sscanf(tline, '%f %f %f %f %f %f %f %f %f');
-            try
-                atten(m,A(1)) = A(2);
-                voverc(m,A(1)) = A(3);
-            catch
-                sprintf('Error message')
-            end
-            tline = fgetl(fid);
-            n = n+1;
-        end
-    end
+    % if strncmp(tline, '  rho   lat    lon  azim   dip mgfld  sigma eps beta  h',length('  rho   lat    lon  azim   dip mgfld  sigma eps beta  h'))
+    %     tline = fgetl(fid);
+    %     n = n+1;
+    %     A = sscanf(tline,'%f %f %f %f %f %f %f %f %f %f %f');
+    %     nummodes = A(end);
+    %             %advance the line until you read the beginning of the mode list
+    %     while ~strncmp(tline,' mode  atten   v/c         rel exc 1',length(' mode  atten   v/c         rel exc 1'))
+    %         tline = fgetl(fid);
+    %         n = n+1;
+    %     end
+    %         tline = fgetl(fid);
+    %         n = n+1;
+    %     %until the end of the mode list, record attena and v/c
+    %     for mm = 1:nummodes
+    % 
+    %         A = sscanf(tline, '%f %f %f %f %f %f %f %f %f');
+    %         try
+    %             atten(m,A(1)) = A(2);
+    %             voverc(m,A(1)) = A(3);
+    %         catch
+    %             sprintf('Error message')
+    %         end
+    %         tline = fgetl(fid);
+    %         n = n+1;
+    %     end
+    % end
 end
 fclose(fid);
 

@@ -48,13 +48,15 @@ nrpts = 1000;
 rho_max = max(rho);
 rho_full = 0:rho_max/nrpts:rho_max;
 
-for rho_ind = 1:length(rho_full)
-    for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
-        [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc,data,eigens,Amk);
-        aa(rho_ind,nc) = amp;
-        pp(rho_ind,nc) = phs;
-    end
-end
+% for rho_ind = 1:length(rho_full)
+%     for nc = 1:6 %1=Ez, 2=Ey, 3=Ex, 4=Hz, 5=Hy, 6=Hx
+%         [amp,phs] = lw_sum_modes(power,rho_full(rho_ind),nc,data,eigens,Amk);
+%         aa(rho_ind,nc) = amp;
+%         pp(rho_ind,nc) = phs;
+%     end
+% end
+
+[aa,pp] = efficient_lw_sum_modes(power, rho_full,data,eigens,Amk);
 
 aa_linear = 10.^(aa./20);
 cmplx_flds = aa_linear.*exp(1j.*pp.*pi/180);

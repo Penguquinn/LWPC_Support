@@ -13,9 +13,9 @@ angle_max = 270;
 freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
-clean_w(1);
-hprime = 71:1:90;
-beta = .3:.03:0.6;
+% clean_w(1);
+hprime = 65.1:.1:80;
+beta = .301:.001:0.6;
 h_0 = 100:10:120;%80:2:100;
 
 
@@ -24,11 +24,11 @@ h_0 = 100:10:120;%80:2:100;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %tagsm = angle_min:angle_step:angle_max;
 filenames = chapman_prf(paths,hprime,beta,h_0);
-
+save(sprintf('%dhp%d_%db%d_%dho%d_filenames.mat',min(hprime)*10,max(hprime)*10,min(beta)*1000,max(beta)*1000,min(h_0)*10,max(h_0)*10),"filenames")
 
 
 % for ii=1:numel(filenames)
-TXdata{1} = 'NAA240';
+TXdata{1} = 'NML252';
 % end
 disp("Finished PRF")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,74 +51,78 @@ disp("Finished INP")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Run list of lwpc commands      %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% parfor ii = 1:numel(filenames)
-% [status, cmdout] = RunLWPC(filenames{ii});
-% 
-% end
+parfor ii = 1:numel(filenames)
+[status, cmdout] = RunLWPC(filenames{ii});
+
+end
 % clean_w(0);
-% disp("Finished RUN")
+disp("Finished RUN")
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% parfor kk = 1:numel(h_0)
-%     for ii = 1:numel(hprime)
-%         for jj = 1:numel(beta)
-%             [status, cmdout] = RunLWPC(filenames{ii});
-%             try
-%             [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}, hx{ii,jj,kk},hy{ii,jj,kk}, rho_full] = ...
-%                 lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
-%             catch
-%                 s0_c{ii,jj,kk} = NaN(1001,1);
-%                 s1_c{ii,jj,kk} = NaN(1001,1);
-%                 s2_c{ii,jj,kk} = NaN(1001,1);
-%                 s3_c{ii,jj,kk} = NaN(1001,1);
-%                 hx{ii,jj,kk} = NaN(1001,1);
-%                 hy{ii,jj,kk} = NaN(1001,1);
-%             end
-%         end
-%     end
-% end
-elemn = numel(h_0)*numel(beta)*numel(hprime);
-s0_c = cell(elemn,1);
-s1_c = cell(elemn,1);
-s2_c = cell(elemn,1);
-s3_c = cell(elemn,1);
-parfor kk = 1:elemn
-    [status, cmdout] = RunLWPC(filenames{kk});
-    try
-    [s0_c{kk},s1_c{kk},s2_c{kk},s3_c{kk}, hx{kk},hy{kk}] = ...
-        lw_vs_d_function(paths,filenames{kk},freak,dist_max);
-    catch
-        s0_c{kk} = NaN(1001,1);
-        s1_c{kk} = NaN(1001,1);
-        s2_c{kk} = NaN(1001,1);
-        s3_c{kk} = NaN(1001,1);
-        hx{kk} = NaN(1001,1);
-        hy{kk} = NaN(1001,1);
+for kk = 3%1:numel(h_0)
+    for ii = 1:numel(hprime)
+        parfor jj = 1:numel(beta)
+            % [status, cmdout] = RunLWPC(filenames{ii});
+            try
+            [t0{ii,jj,kk},t1{ii,jj,kk},t2{ii,jj,kk},t3{ii,jj,kk}] = ...
+                lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
+            catch
+                disp(sprintf("error at %d %d %d", ii, jj, kk))
+                t0{ii,jj,kk} = NaN(1001,1);
+                t1{ii,jj,kk} = NaN(1001,1);
+                t2{ii,jj,kk} = NaN(1001,1);
+                t3{ii,jj,kk} = NaN(1001,1);
+                hx{ii,jj,kk} = NaN(1001,1);
+                hy{ii,jj,kk} = NaN(1001,1);
+            end
+        end
     end
 end
-[~,~,~,~,~,~,rho_full] = lw_vs_d_function(paths,filenames{end},freak,dist_max);
-
-s0_c = reshape(s0_c,numel(hprime),numel(beta),numel(h_0));
-s1_c = reshape(s1_c,numel(hprime),numel(beta),numel(h_0));
-s2_c = reshape(s2_c,numel(hprime),numel(beta),numel(h_0));
-s3_c = reshape(s3_c,numel(hprime),numel(beta),numel(h_0));
+% elemn = numel(h_0)*numel(beta)*numel(hprime);
+% s0_c = cell(elemn,1);
+% s1_c = cell(elemn,1);
+% s2_c = cell(elemn,1);
+% s3_c = cell(elemn,1);
+% parfor kk = 1:elemn
+%     [status, cmdout] = RunLWPC(filenames{kk});
+%     try
+%     [s0_c{kk},s1_c{kk},s2_c{kk},s3_c{kk}, hx{kk},hy{kk}] = ...
+%         lw_vs_d_function(paths,filenames{kk},freak,dist_max);
+%     catch
+%         s0_c{kk} = NaN(1001,1);
+%         s1_c{kk} = NaN(1001,1);
+%         s2_c{kk} = NaN(1001,1);
+%         s3_c{kk} = NaN(1001,1);
+%         hx{kk} = NaN(1001,1);
+%         hy{kk} = NaN(1001,1);
+%     end
+% end
+% [~,~,~,~,~,~,rho_full] = lw_vs_d_function(paths,filenames{end},freak,dist_max);
+% 
+% s0_c = reshape(s0_c,numel(hprime),numel(beta),numel(h_0));
+% s1_c = reshape(s1_c,numel(hprime),numel(beta),numel(h_0));
+% s2_c = reshape(s2_c,numel(hprime),numel(beta),numel(h_0));
+% s3_c = reshape(s3_c,numel(hprime),numel(beta),numel(h_0));
 
 
 
 disp("Finished READ")
-save(sprintf('%dhp%d_%db%d_%dho%d.mat',min(hprime)*10,max(hprime)*10,min(beta)*1000,max(beta)*1000,min(h_0)*10,max(h_0)*10),"s0_c","s1_c","s3_c","s3_c")
+save(sprintf('%dhp%d_%db%d_%dho%d.mat',min(hprime)*10,max(hprime)*10,min(beta)*1000,max(beta)*1000,min(h_0)*10,max(h_0)*10),"s0_c","s1_c","s2_c","s3_c")
 
 
 
-
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%            Build S Grid           %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%
+nrpts = 1000;
+rho_max = max(dist_max);
+rho_full = 0:rho_max/nrpts:rho_max;
 idx = find(abs(rho_full-path_len)==min(abs(rho_full-path_len)));
-for kk = 1:numel(h_0)
+for kk = 3%:numel(h_0)
     for ii = 1:numel(hprime)
         for jj = 1:numel(beta)
             gs0(ii,jj,kk) = s0_c{ii,jj,kk}(idx);
@@ -126,39 +130,71 @@ for kk = 1:numel(h_0)
             gs2(ii,jj,kk) = s2_c{ii,jj,kk}(idx)./gs0(ii,jj,kk);
             gs3(ii,jj,kk) = s3_c{ii,jj,kk}(idx)./gs0(ii,jj,kk);
 
+            % gs1(ii,jj,kk) = gs1(ii,jj,kk)-ns1(idx);
+            % gs2(ii,jj,kk) = gs2(ii,jj,kk)-ns2(idx);
+            % gs3(ii,jj,kk) = gs3(ii,jj,kk)-ns3(idx);
+            % 
+            % rse(ii,jj,kk) = (gs1(ii,jj,kk)^2 + gs2(ii,jj,kk)^2 + gs3(ii,jj,kk)^2)/3;
+
         end
     end
 end
 
 
-gifFile = 'h0sweep.gif';
-delayTime = 0.5;
-fig2 = figure('Color','w');
-set(fig2,'Position',[100 100 900 400])
+% gifFile = 'h0sweep.gif';
+% delayTime = 2;
+% fig2 = figure('Color','w');
+% set(fig2,'Position',[100 100 900 400])
+figure("Theme","Light");
 
-for ii=1:1:numel(h_0)
+for ii=3%:1:numel(h_0)
+    % rses = squeeze(rse(:,:,ii));
+    % [minVal, linearIdx] = min(rses(:));
+    % [row, col] = ind2sub(size(rses), linearIdx);
+    sgtitle("Error from run of 72.65h\prime .4005\beta 120h_0","FontSize",25)
     subplot(1,3,1)
     imagesc(hprime,beta,squeeze(gs1(:,:,ii))); hold on;
+    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
     axis xy;
+    colorbar;
+    clim([-1 1])
+    xlabel('Hprime','FontSize',15);
+    ylabel('Beta','FontSize',15);
+    title("Normalized S1","FontSize",20);
+    hold off;
 
     subplot(1,3,2)
     imagesc(hprime,beta,squeeze(gs2(:,:,ii))); hold on;
+    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
     axis xy;
+    colorbar;
+    clim([-1 1])
+    xlabel('Hprime','FontSize',15);
+    ylabel('Beta','FontSize',15);
+    title("Normalized S2","FontSize",20);
+    hold off;
 
     subplot(1,3,3)
     imagesc(hprime,beta,squeeze(gs3(:,:,ii))); hold on;
+    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
     axis xy;
+    colorbar;
+    clim([-1 1])
+    xlabel('Hprime','FontSize',15);
+    ylabel('Beta','FontSize',15);
+    title("Normalized S3","FontSize",20);
+    hold off;
 
-    drawnow
-    frame = getframe(fig2);
-
-    im = frame2im(frame);
-    [A,map] = rgb2ind(im,256);
-    if ii == 1
-        imwrite(A,map,gifFile,'gif','LoopCount',inf,'DelayTime',delayTime);
-    else
-        imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
-    end
+    % drawnow
+    % frame = getframe(fig2);
+    % 
+    % im = frame2im(frame);
+    % [A,map] = rgb2ind(im,256);
+    % if ii == 1
+    %     imwrite(A,map,gifFile,'gif','LoopCount',inf,'DelayTime',delayTime);
+    % else
+    %     imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
+    % end
 end
 
 
