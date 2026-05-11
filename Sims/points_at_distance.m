@@ -1,4 +1,4 @@
-function [lat_out, lon_out, bearings] = points_at_distance( ...
+function [lat_out, lon_out] = points_at_distance( ...
     lat0, lon0, dist_km, angle_min, angle_max, angle_step)
 % POINTS_AT_DISTANCE
 % Finds lat/lon points at a fixed distance from a starting coordinate
@@ -16,6 +16,7 @@ function [lat_out, lon_out, bearings] = points_at_distance( ...
 %   lon_out      - longitudes of resulting points (degrees)
 %   bearings     - bearings used (degrees)
     
+    lon0 = lon0 * -1;
     dist_deg = km2deg(dist_km);
     circ = [dist_deg*cosd((angle_min:angle_step:angle_max))./2; dist_deg*sind((angle_min:angle_step:angle_max))];
     lat_out = lat0 + circ(1,:);

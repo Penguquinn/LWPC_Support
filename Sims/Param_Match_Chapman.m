@@ -14,9 +14,9 @@ freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
 % clean_w(1);
-hprime = 65.1:.1:80;
-beta = .301:.001:0.6;
-h_0 = 100:10:120;%80:2:100;
+hprime = 65:1:80;
+beta = .3:.1:0.6;
+h_0 = 120;%80:2:100;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,19 +61,19 @@ disp("Finished RUN")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%    Read Outputs into .mat files   %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for kk = 3%1:numel(h_0)
+for kk = 1:numel(h_0)
     for ii = 1:numel(hprime)
         parfor jj = 1:numel(beta)
             % [status, cmdout] = RunLWPC(filenames{ii});
             try
-            [t0{ii,jj,kk},t1{ii,jj,kk},t2{ii,jj,kk},t3{ii,jj,kk}] = ...
+            [s0_c{ii,jj,kk},s1_c{ii,jj,kk},s2_c{ii,jj,kk},s3_c{ii,jj,kk}] = ...
                 lw_vs_d_function(paths,filenames{ii,jj,kk},freak,dist_max);
             catch
                 disp(sprintf("error at %d %d %d", ii, jj, kk))
-                t0{ii,jj,kk} = NaN(1001,1);
-                t1{ii,jj,kk} = NaN(1001,1);
-                t2{ii,jj,kk} = NaN(1001,1);
-                t3{ii,jj,kk} = NaN(1001,1);
+                s0_c{ii,jj,kk} = NaN(1001,1);
+                s1_c{ii,jj,kk} = NaN(1001,1);
+                s2_c{ii,jj,kk} = NaN(1001,1);
+                s3_c{ii,jj,kk} = NaN(1001,1);
                 hx{ii,jj,kk} = NaN(1001,1);
                 hy{ii,jj,kk} = NaN(1001,1);
             end

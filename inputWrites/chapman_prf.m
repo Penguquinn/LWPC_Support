@@ -9,7 +9,7 @@ function filenames = chapman_prf(save_path,hprime,beta,h_0)
 qe = 1.602176634e-19; %C
 eps0 = 8.8541878128e-12; %F/m
 me = 9.1093837015e-31; %kg
-wrprime = 2.5e5;
+wrprime = 2.5e2;
 
 
 
