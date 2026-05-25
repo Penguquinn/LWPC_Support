@@ -16,7 +16,7 @@ wrprime = 2.5e2;
 for hh=1:length(hprime)
     for bb=1:length(beta)
         for tt=1:length(h_0)
-            h = h_0(tt)-20 :2 : h_0(tt)+4;
+            h = [20:5:75 77:2:120];%h_0(tt)-20 :2 : h_0(tt)+4;
             % h(h>h_0(tt)) = [];
             if hprime(hh) >= h_0(tt)
                 continue
@@ -35,7 +35,7 @@ for hh=1:length(hprime)
             enprime = wrprime*nuprime*eps0*me./(qe.^2)./100.^3; %electron density at the reflection height in cm^-3
             
             zprime = (hprime(hh)-h_0(tt))./(H);
-            N_0 = enprime*exp(-0.5*(1-zprime-exp(-zprime)));
+            N_0 = 10e2 * enprime*exp(-0.5*(1-zprime-exp(-zprime)));
         
             z = (h-h_0(tt))./H;
             en = N_0.*exp(0.5.*(1-z-exp(-z)));

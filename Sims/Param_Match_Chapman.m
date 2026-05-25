@@ -13,10 +13,10 @@ angle_max = 270;
 freak = 24;
 paths = 'C:\LWPCwin\';
 % cleanup(0);
-% clean_w(1);
+clean_w(1);
 hprime = 65:1:80;
-beta = .3:.1:0.6;
-h_0 = 120;%80:2:100;
+beta = .3:.05:0.6;
+h_0 = 110;%80:2:100;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -28,7 +28,7 @@ save(sprintf('%dhp%d_%db%d_%dho%d_filenames.mat',min(hprime)*10,max(hprime)*10,m
 
 
 % for ii=1:numel(filenames)
-TXdata{1} = 'NML252';
+TXdata{1} = 'NAA240';
 % end
 disp("Finished PRF")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,7 +122,7 @@ nrpts = 1000;
 rho_max = max(dist_max);
 rho_full = 0:rho_max/nrpts:rho_max;
 idx = find(abs(rho_full-path_len)==min(abs(rho_full-path_len)));
-for kk = 3%:numel(h_0)
+for kk = 1%:numel(h_0)
     for ii = 1:numel(hprime)
         for jj = 1:numel(beta)
             gs0(ii,jj,kk) = s0_c{ii,jj,kk}(idx);
@@ -141,60 +141,58 @@ for kk = 3%:numel(h_0)
 end
 
 
-% gifFile = 'h0sweep.gif';
-% delayTime = 2;
-% fig2 = figure('Color','w');
-% set(fig2,'Position',[100 100 900 400])
 figure("Theme","Light");
 
-for ii=3%:1:numel(h_0)
-    % rses = squeeze(rse(:,:,ii));
-    % [minVal, linearIdx] = min(rses(:));
-    % [row, col] = ind2sub(size(rses), linearIdx);
-    sgtitle("Error from run of 72.65h\prime .4005\beta 120h_0","FontSize",25)
+for ii = 1 %:numel(h_0)
+
+    % sgtitle("Error from run of 72.65h\prime .4005\beta 120h_0","FontSize",25)
+
+    % ---------------- S1 ----------------
     subplot(1,3,1)
-    imagesc(hprime,beta,squeeze(gs1(:,:,ii))); hold on;
-    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
+
+    h = imagesc(beta, hprime, squeeze(gs1(:,:,ii)));
+    set(h, 'AlphaData', ~isnan(squeeze(gs1(:,:,ii))));
+    set(gcf, 'Color', 'w'); % Sets background to white (or any other color)
     axis xy;
+
     colorbar;
     clim([-1 1])
-    xlabel('Hprime','FontSize',15);
-    ylabel('Beta','FontSize',15);
+
+    xlabel('\beta','FontSize',15);
+    ylabel('Hprime','FontSize',15);
+
     title("Normalized S1","FontSize",20);
-    hold off;
 
+
+    % ---------------- S2 ----------------
     subplot(1,3,2)
-    imagesc(hprime,beta,squeeze(gs2(:,:,ii))); hold on;
-    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
+
+    imagesc(beta, hprime, squeeze(gs2(:,:,ii)));
     axis xy;
+
     colorbar;
     clim([-1 1])
-    xlabel('Hprime','FontSize',15);
-    ylabel('Beta','FontSize',15);
+
+    xlabel('\beta','FontSize',15);
+    ylabel('Hprime','FontSize',15);
+
     title("Normalized S2","FontSize",20);
-    hold off;
 
+
+    % ---------------- S3 ----------------
     subplot(1,3,3)
-    imagesc(hprime,beta,squeeze(gs3(:,:,ii))); hold on;
-    % plot(hprime(row), beta(col), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
+
+    imagesc(beta, hprime, squeeze(gs3(:,:,ii)));
     axis xy;
+
     colorbar;
     clim([-1 1])
-    xlabel('Hprime','FontSize',15);
-    ylabel('Beta','FontSize',15);
-    title("Normalized S3","FontSize",20);
-    hold off;
 
-    % drawnow
-    % frame = getframe(fig2);
-    % 
-    % im = frame2im(frame);
-    % [A,map] = rgb2ind(im,256);
-    % if ii == 1
-    %     imwrite(A,map,gifFile,'gif','LoopCount',inf,'DelayTime',delayTime);
-    % else
-    %     imwrite(A,map,gifFile,'gif','WriteMode','append','DelayTime',delayTime);
-    % end
+    xlabel('\beta','FontSize',15);
+    ylabel('Hprime','FontSize',15);
+
+    title("Normalized S3","FontSize",20);
+
 end
 
 

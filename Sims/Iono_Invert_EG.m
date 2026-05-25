@@ -1,19 +1,22 @@
 load("651hp800_301b600_1000ho1200_NAA_EG.mat")
+hprime = linspace(65.1,80,150);
+beta = linspace(.301,.600,300);
+h_0 = linspace(100,120,3);
 
 
 %%
-day = 0;
+day = 1;
 
 if day == 0
-    NS_amp = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_004A.mat")
-    NS_phase = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_004B.mat")
-    EW_amp = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_005A.mat")
-    EW_phase = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_005B.mat")
+    NS_amp = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_004A.mat");
+    NS_phase = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_004B.mat");
+    EW_amp = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_005A.mat");
+    EW_phase = load("C:\VLF_data\EG\2016\06\11\000000\EG160611000000NAA_005B.mat");
 else
-    NS_amp = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_004A.mat")
-    NS_phase = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_004B.mat")
-    EW_amp = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_005A.mat")
-    EW_phase = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_005B.mat")
+    NS_amp = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_004A.mat");
+    NS_phase = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_004B.mat");
+    EW_amp = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_005A.mat");
+    EW_phase = load("C:\VLF_data\EG\2016\06\11\120000\EG160611120000NAA_005B.mat");
 end
 
 
@@ -28,6 +31,10 @@ p3 = 2* imag(NS.* conj(EW));
 pn1 = p1./p0;
 pn2 = p2./p0;
 pn3 = p3./p0;
+
+temp = pn1;
+pn1 = -1 * (pn1 .* cos(2*-13.9)) + (pn2 .* sin(2*-13.9));
+pn2 = (-temp .* sin(2*-13.9)) + (pn2 .* cos(2*-13.9));
 
 
 % plot(time,p0);hold on;plot(time,p1);plot(time,p2);plot(time,p3);
@@ -65,7 +72,7 @@ end
 
 xx = abs(gs1 - pn1(1)) + abs(gs2 - pn2(1)) + abs(gs3-pn3(1));
 [aa,bb] = min(xx(:));
-[rr,cc,dd] = ind2sub(size,bb);
+[rr,cc,dd] = ind2sub(size(s0_c),bb);
 
 s1_space = squeeze(gs1(:,:,dd));
 s2_space = squeeze(gs2(:,:,dd));
@@ -108,7 +115,7 @@ ylabel("H\prime","FontSize",20)
 
 for ii = 1:max(time)
 
-    xx = abs(gs1 - pn1(ii)) + abs(gs2 - pn2(ii)) + abs(gs3 - pn3(ii));
+    xx = sqrt(abs(gs1 - pn1(ii)) + abs(gs2 - pn2(ii)) + abs(gs3 - pn3(ii)));
 
     % --- get 3 smallest ---
     [vals, idx] = mink(xx(:), 10);
@@ -218,3 +225,6 @@ ylabel("Altitude (km)","FontSize",20)
 yt = get(gca, 'YTick');                 % tick positions (stay the same)
 set(gca, 'YTickLabel', flip(yt));       % reverse what's displayed
 ylabel(cb, 'Electron Density in Log Scale',FontSize=20);
+
+
+figure; plot(pn1); hold on; plot(pn2); plot(pn3);

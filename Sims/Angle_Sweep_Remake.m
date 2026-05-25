@@ -63,7 +63,7 @@ parfor ii = 1:length(rxvr_lon)
     fprintf(fid,['tx-data      ' TXdata '\n']);
         %% next line needs filepath fixed
     fprintf(fid,[sprintf('ionosphere  homogeneous table ./%s.prf\n',filenames{1})]);
-    fprintf(fid,['range-max   2200.0\n']);
+    fprintf(fid,['range-max   10000.0\n']);
     fprintf(fid,[sprintf('receivers     %f   %f\n',rxvr_lat(ii),rxvr_lon(ii))]);
     fprintf(fid,['mc-options  full-wave 0 true\n']);
     fprintf(fid,['lwflds\n']);
@@ -83,10 +83,10 @@ parfor ii = 1:length(rxvr_lon)
         lw_vs_d_function(paths,basename_inp,freak,dist_max);
     catch
         % disp(sprintf("error at %d %d %d", ii, jj, kk))
-        s0_c{ii} = NaN(1001,1);
-        s1_c{ii} = NaN(1001,1);
-        s2_c{ii} = NaN(1001,1);
-        s3_c{ii} = NaN(1001,1);
+        s0{ii} = NaN(1001,1);
+        s1{ii} = NaN(1001,1);
+        s2{ii} = NaN(1001,1);
+        s3{ii} = NaN(1001,1);
         hx{ii} = NaN(1001,1);
         hy{ii} = NaN(1001,1);
     end
@@ -109,97 +109,143 @@ figure('Color','w')
 set(gcf,'Position',[100 100 1200 800])
 
 %% Animation loop
-
-
-N = length(rxvr_lon);
-
-
-
-for kk = 1:N
-
-    s1n = s1{kk} ./ s0{kk};
-    s2n = s2{kk} ./ s0{kk};
-    s3n = s3{kk} ./ s0{kk};
-
-    clf
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % SUBPLOT 1
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    subplot(2,2,1)
-
-    geoplot([xmtr_loc(1),rxvr_lat(kk)],[-xmtr_loc(2),rxvr_lon(kk)])
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % SUBPLOT 2
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    subplot(2,2,2)
-
-    title('Your Plot 2')
-    grid on
-    hold on
-
-    plot(s1n)
-    plot(s2n)
-    plot(s3n)
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % SUBPLOT 3
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    subplot(2,2,3)
-
-    title('Your Plot 3')
-    grid on
-    hold on
-
-    plot(10*log10(abs(hx{kk})))
-    plot(10*log10(abs(hy{kk})))
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % SUBPLOT 4
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    subplot(2,2,4)
-
-    title('Your Plot 4')
-    grid on
-    hold on
-
-    % Example placeholder
-    plot(10*log10(abs(s1n)))
-    plot(10*log10(abs(s2n)))
-    plot(10*log10(abs(s3n)))
-
-    drawnow
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Write frame to GIF
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    frame = getframe(gcf);
-    im = frame2im(frame);
-
-    [A,map] = rgb2ind(im,256);
-
-    if kk == 1
-        imwrite(A,map,gif_name,...
-            'gif',...
-            'LoopCount',Inf,...
-            'DelayTime',0.05);
-    else
-        imwrite(A,map,gif_name,...
-            'gif',...
-            'WriteMode','append',...
-            'DelayTime',0.05);
+% 
+% 
+% N = length(rxvr_lon);
+% 
+% 
+% 
+% for kk = 1:N
+% 
+%     s1n = s1{kk} ./ s0{kk};
+%     s2n = s2{kk} ./ s0{kk};
+%     s3n = s3{kk} ./ s0{kk};
+% 
+%     clf
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % SUBPLOT 1
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%     subplot(2,2,1)
+% 
+%     geoplot([xmtr_loc(1),rxvr_lat(kk)],[-xmtr_loc(2),-rxvr_lon(kk)])
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % SUBPLOT 2
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%     subplot(2,2,2)
+% 
+%     title('Your Plot 2')
+%     grid on
+%     hold on
+% 
+%     plot(s1n)
+%     plot(s2n)
+%     plot(s3n)
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % SUBPLOT 3
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%     subplot(2,2,3)
+% 
+%     title('Your Plot 3')
+%     grid on
+%     hold on
+% 
+%     plot(10*log10(abs(hx{kk})))
+%     plot(10*log10(abs(hy{kk})))
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % SUBPLOT 4
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%     subplot(2,2,4)
+% 
+%     title('Your Plot 4')
+%     grid on
+%     hold on
+% 
+%     % Example placeholder
+%     plot(10*log10(abs(s1n)))
+%     plot(10*log10(abs(s2n)))
+%     plot(10*log10(abs(s3n)))
+% 
+%     drawnow
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % Write frame to GIF
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%     frame = getframe(gcf);
+%     im = frame2im(frame);
+% 
+%     [A,map] = rgb2ind(im,256);
+% 
+%     if kk == 1
+%         imwrite(A,map,gif_name,...
+%             'gif',...
+%             'LoopCount',Inf,...
+%             'DelayTime',0.05);
+%     else
+%         imwrite(A,map,gif_name,...
+%             'gif',...
+%             'WriteMode','append',...
+%             'DelayTime',0.05);
+%     end
+% 
+% end
+% 
+% disp('GIF complete')
+% 
+% 
+% 
+% 
+%% 
+clear s0l s1l s2l s3l
+% dvec = 0:10:10000;
+for ii = 1:length(s0)
+%     dst = deg2km(,"earth");
+%     distidx = find(dvec,min(dvec-dst));
+    try
+        s0l(ii) = s0{ii}(500);
+    catch
+        s0l(ii) = NaN;
     end
+    try
+        s1l(ii) = s1{ii}(500);
+    catch
+        s1l(ii) = NaN;
+    end
+
+    try
+        s2l(ii) = s2{ii}(500);
+    catch
+        s2l(ii) = NaN;
+    end
+    try
+        s3l(ii) = s3{ii}(500);
+    catch
+        s3l(ii) = NaN;
+    end
+
 
 end
 
-disp('GIF complete')
 
 
 
 
+
+
+
+
+figure;
+plot(s1l./s0l)
+ylim([-1,1])
+figure;
+plot(s2l./s0l)
+figure;
+plot(s3l./s0l)
