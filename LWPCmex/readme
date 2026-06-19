@@ -1,6 +1,0 @@
-To run:
-
-1. Set an environment variable named "LWPC_DAT_LOC" that provides the absolute path to the "data" subfolder
-2. Run "make"
-3. Use Python wrapper to run a simple test case by calling "python run_lwpm.py 24 73 0.3 NAA 35 80"
-4. Check the contents of lwpm-python-XXXXXXX.log to verify that the run succeeded

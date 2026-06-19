@@ -1,10 +1,10 @@
 %% Load Data
 
 
-naa = load('C:\Users\qdh0004\OneDrive - Auburn University\Desktop\nb_polarization\CH240815013000NAA_001.mat');
-nlk = load('C:\Users\qdh0004\OneDrive - Auburn University\Desktop\nb_polarization\CH240815013000NLK_001.mat');
-nlm = load('C:\Users\qdh0004\OneDrive - Auburn University\Desktop\nb_polarization\CH240815013000NLM_001.mat');
-npm = load('C:\Users\qdh0004\OneDrive - Auburn University\Desktop\nb_polarization\CH240815013000NPM_001.mat');
+naa = load('C:\VLF_data\NB\AU_Pol\AU230622180000NAA_001.mat');
+nlk = load('C:\VLF_data\NB\AU_Pol\AU230622180000NLK_001.mat');
+nlm = load('C:\VLF_data\NB\AU_Pol\AU230622180000NLM_001.mat');
+npm = load('C:\VLF_data\NB\AU_Pol\AU230622180000NPM_001.mat');
 
 
 % naa = load('C:\VLF_data\NB\2023_01_01\AU230101000504NAA_004A.mat');
@@ -25,7 +25,11 @@ lon_vals = -180:0.2:0;
 clear lat_vals lon _vals;
 
 % rxvr loc for "calibration"
-chistochina = [62.561760, -144.647490];
+%chistochina = [62.561760, -144.647490];
+AU = [32.466212, -85.470926];
+
+% mag_dec at rxvr
+decl = 1.6;
 
 
 % Locations of xmtrs
@@ -41,10 +45,10 @@ azm_grid_nlm = azimuth(lat_grid,lon_grid,lam(1),lam(2));
 azm_grid_npm = azimuth(lat_grid,lon_grid,lua(1),lua(2));
 
 % true azim values for calibration
-true_bear_naa = azimuth(chistochina(1),chistochina(2),cutler(1),cutler(2));
-true_bear_npm = azimuth(chistochina(1),chistochina(2),lua(1),lua(2));
-true_bear_nlk = azimuth(chistochina(1),chistochina(2),jimk(1),jimk(2));
-true_bear_nlm = azimuth(chistochina(1),chistochina(2),lam(1),lam(2));
+true_bear_naa = azimuth(AU(1),AU(2),cutler(1),cutler(2));
+true_bear_npm = azimuth(AU(1),AU(2),lua(1),lua(2));
+true_bear_nlk = azimuth(AU(1),AU(2),jimk(1),jimk(2));
+true_bear_nlm = azimuth(AU(1),AU(2),lam(1),lam(2));
 
 
 
@@ -65,13 +69,13 @@ npms = {npm.s0,npm.s1./npm.s0,npm.s2./npm.s0,npm.s3./npm.s0};
 
 
 %% determine angles 
-naa_ang = mod(180 - (0.5 * atan2d(naas{3}, naas{2})), 360) -180+21;
+naa_ang = mod(180 - (0.5 * atan2d(naas{3}, naas{2})), 360) -180+decl;
 
-nlk_ang = mod(180 - (0.5 * atan2d(nlks{3}, nlks{2})), 360) -180+21;
+nlk_ang = mod(180 - (0.5 * atan2d(nlks{3}, nlks{2})), 360) -180+decl;
 
-nlm_ang = mod(180 - (0.5 * atan2d(nlms{3}, nlms{2})), 360) -180+21;
+nlm_ang = mod(180 - (0.5 * atan2d(nlms{3}, nlms{2})), 360) -180+decl;
 
-npm_ang = mod(180 - (0.5 * atan2d(npms{3}, npms{2})), 360) -180+21;
+npm_ang = mod(180 - (0.5 * atan2d(npms{3}, npms{2})), 360) -180+decl;
 
 % calibration values
 cali_naa = mod(180+mean(naa_ang(1:100)),180) - true_bear_naa;
@@ -81,13 +85,15 @@ cali_npm = mod(180+mean(npm_ang(1:100)),180) - true_bear_npm;
 cali_npm = mod(-1* cali_npm,180);
 %% find first guess coords
 
-min_num = 20;
+min_num = 1;
 
 figure;
 gx = geoaxes;
 hold(gx,'on');
 [~,bb] = mink(abs(azm_grid_naa(:) - mod((naa_ang(1) - cali_naa),180)),min_num);
 [rr,cc] = ind2sub(size(azm_grid_naa),bb);
+bb_naa = azimuth(cutler(1),cutler(2),lat_grid(rr),lon_grid(cc));
+bb_naa = azimuth(lat_grid(cc),lon_grid(rr),cutler(1),cutler(2));
 
 
 [naa_guess_lat,sort_idx] = sort(lat_grid(rr));
@@ -126,6 +132,7 @@ npm_guess_lon = lon_grid(1,cc);
 npm_guess_lon = npm_guess_lon(sort_idx);
 
 geoplot(gx,npm_guess_lat,npm_guess_lon)
+legend('cutler','jim creek','la moure','lualualei')
 
 
 % - cali_npm  - cali_nlm
@@ -137,7 +144,7 @@ geoplot(gx,npm_guess_lat,npm_guess_lon)
 
 
 
-tbnaa = azimuth(chistochina(1),chistochina(2),cutler(1),cutler(2));
+tbnaa = azimuth(AU(1),AU(2),cutler(1),cutler(2));
 
 
 
@@ -149,7 +156,7 @@ figure;
 gx = geoaxes;
 hold(gx,"on");
 
-[gsp_lat,gsp_lon] = reckon(cutler(1),cutler(2),range,mod(90-(naa_ang(1)-cali_naa),360)+127);
+[gsp_lat,gsp_lon] = reckon(cutler(1),cutler(2),range,bb_naa+2.9); %mod(90-(naa_ang(1)-cali_naa),360)
 [gsp_lon,II] = sort(gsp_lon);
 gsp_lat = gsp_lat(II);
 geoplot(gsp_lat,gsp_lon)
@@ -167,7 +174,7 @@ gsp_lat = gsp_lat(II);
 geoplot(gsp_lat,gsp_lon)
 
 
-[gsp_lat,gsp_lon] = reckon(lua(1),lua(2),range,npm_ang(1)-cali_npm);
+[gsp_lat,gsp_lon] = reckon(lua(1),lua(2),range,npm_ang(1));
 [gsp_lon,II] = sort(gsp_lon);
 gsp_lat = gsp_lat(II);
 geoplot(gsp_lat,gsp_lon)

@@ -27,7 +27,10 @@ output_path = 'C:\LWPCwin\';
 % xxx xxx 1200 is physical
 % min min min is nonphysical
 
-log_file = '800b301h1200.log';
+
+% log_file = 'test.log';
+log_file = '770b520h1300.log';
+% log_file = '700b400.log';
 [rho, sigma, epsr, eigen, eigens, ht, Ex_mag, Ex_ang, Ey_mag, Ey_ang, Ez_mag, Ez_ang, ...
     Hx_mag, Hx_ang, Hy_mag, Hy_ang, Hz_mag, Hz_ang, fofr, T1, T2, T3, T4, Amk] ...
     = read_output_lwpv3_T_fofr(output_path, log_file);
@@ -129,7 +132,7 @@ legend('S_1 (Q)','S_2 (U)','S_3 (V)')
 % phs_err = ufphs-phase;
 % mean_phs_err = repmat(mean(phs_err,'omitnan'),size(amplitude));
 % std_phs_err = repmat(std(phs_err,'omitnan'),size(amplitude));
-
+% 
 % figure
 % subplot(2,1,1)
 % plot(dist,amplitude)
@@ -156,7 +159,7 @@ legend('S_1 (Q)','S_2 (U)','S_3 (V)')
 % % title('E_z at z=0')
 % xlabel('Distance (km)')
 % ylabel('Phase (Degrees)')
-
+% 
 % figure
 % subplot(2,1,1)
 % plot(dist,amp_err-mean_amp_err)

@@ -9,7 +9,7 @@ function filenames = chapman_prf(save_path,hprime,beta,h_0)
 qe = 1.602176634e-19; %C
 eps0 = 8.8541878128e-12; %F/m
 me = 9.1093837015e-31; %kg
-wrprime = 2.5e2;
+wrprime = 2.5e5;
 
 
 
@@ -26,7 +26,7 @@ for hh=1:length(hprime)
             
             %calculate N_0 and H based on the given values
             Htest = 5:.01:25;
-            betatest = (0.5./Htest).*(exp(-((hprime(hh)-h_0(tt))./Htest))-1);
+            betatest = (0.75./Htest).*(exp(-((hprime(hh)-h_0(tt))./Htest))-1);
             [~,betaind] = min(abs(betatest-beta(bb)));
 %             betaind = find(betatest-beta(bb) ==  min(abs(betatest-beta(bb))));
             H = Htest(betaind);
@@ -35,7 +35,7 @@ for hh=1:length(hprime)
             enprime = wrprime*nuprime*eps0*me./(qe.^2)./100.^3; %electron density at the reflection height in cm^-3
             
             zprime = (hprime(hh)-h_0(tt))./(H);
-            N_0 = 10e2 * enprime*exp(-0.5*(1-zprime-exp(-zprime)));
+            N_0 = 10e2 *  enprime*exp(-0.5*(1-zprime-exp(-zprime)));
         
             z = (h-h_0(tt))./H;
             en = N_0.*exp(0.5.*(1-z-exp(-z)));
